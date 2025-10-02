@@ -733,33 +733,44 @@ def main():
                 
                 # Ajustements
                 minutes_factor = player.get('minutes_ratio', 1)
-                difficulty_factor = player.get('difficulty_factor', 1)
-                final_prediction = predicted_points * minutes_factor * difficulty_factor
-                final_prediction = np.clip(final_prediction, 0, 12)
-                
-                all_predictions.append({
-                    'Player' if language == 'en' else 'Joueur': player['web_name'],
-                    'Team' if language == 'en' else 'Équipe': st.session_state.predictor.get_team_name(player['team']),
-                    'Position': st.session_state.predictor.get_position_name(player['element_type'], language),
-                    'Predicted Points' if language == 'en' else 'Points Prédits': final_prediction,
-                    'Form' if language == 'en' else 'Forme': player['form'],
-                    'Cost' if language == 'en' else 'Coût': player['cost']
-                })
+                    difficulty_factor = player.get('difficulty_factor', 1)
+                    final_prediction = predicted_points * minutes_factor * difficulty_factor
+                    final_prediction = np.clip(final_prediction, 0, 12)
+                    
+                    all_predictions.append({
+                        'Player' if language == 'en' else 'Joueur': player['web_name'],
+                        'Team' if language == 'en' else 'Équipe': st.session_state.predictor.get_team_name(player['team']),
+                        'Position': st.session_state.predictor.get_position_name(player['element_type'], language),
+                        'Predicted Points' if language == 'en' else 'Points Prédits': final_prediction,
+                        'Form' if language == 'en' else 'Forme': player['form'],
+                        'Cost' if language == 'en' else 'Coût': player['cost']
+                    })
         
         # Créer le dataframe et trier
-        top_df = pd.DataFrame(all_predictions)
-        points_column = 'Predicted Points' if language == 'en' else 'Points Prédits'
-        top_df = top_df.nlargest(10, points_column)
-        
-        # Afficher le tableau
-        st.dataframe(top_df.style.format({
-            'Predicted Points': '{:.1f}',
-            'Points Prédits': '{:.1f}',
-            'Form': '{:.1f}',
-            'Forme': '{:.1f}',
-            'Cost': '{:.1f}',
-            'Coût': '{:.1f}'
-        }).background_gradient(subset=[points_column], cmap='YlOrRd'), use_container_width=True)
+        if all_predictions:
+            top_df = pd.DataFrame(all_predictions)
+            points_column = 'Predicted Points' if language == 'en' else 'Points Prédits'
+            top_df = top_df.nlargest(10, points_column)
+            
+            # Afficher le tableau avec style
+            styled_df = top_df.style.format({
+                'Predicted Points': '{:.1f}',
+                'Points Prédits': '{:.1f}',
+                'Form': '{:.1f}',
+                'Forme': '{:.1f}',
+                'Cost': '{:.1f}',
+                'Coût': '{:.1f}'
+            })
+            
+            # Appliquer le gradient de couleur
+            try:
+                styled_df = styled_df.background_gradient(subset=[points_column], cmap='YlOrRd')
+            except:
+                pass  # Si le styling échoue, afficher sans style
+                
+            st.dataframe(styled_df, use_container_width=True)
+        else:
+            st.warning("❌ Aucune prédiction disponible" if language == 'fr' else "❌ No predictions available")
     
     # Footer
     st.markdown("---")
