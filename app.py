@@ -2,8 +2,6 @@ import streamlit as st
 import requests
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.preprocessing import StandardScaler
 import xgboost as xgb
 import warnings
@@ -427,6 +425,23 @@ class FPLWebPredictor:
                 filtered_players = filtered_players[filtered_players['element_type'] == position_code]
         
         return filtered_players
+    
+    def get_hidden_gems(self, max_ownership=5, min_minutes=180, top_n=5):
+        """Trouve des joueurs sous-estimés"""
+        if 'selected_by_percent' not in self.players_df.columns:
+            return pd.DataFrame()
+        
+        # Nettoyer la colonne selected_by_percent
+        ownership_clean = pd.to_numeric(self.players_df['selected_by_percent'], errors='coerce').fillna(0)
+        
+        # Filtrer les joueurs
+        gems = self.players_df[
+            (ownership_clean < max_ownership) & 
+            (self.players_df['minutes'] > min_minutes) &
+            (self.players_df['form'] > 0)  # Au moins un peu de forme
+        ].nlargest(top_n, 'form')
+        
+        return gems
 
 def get_translation(key, language='fr'):
     """Retourne la traduction pour une clé donnée"""
@@ -509,26 +524,29 @@ def main():
     # Bouton pour appliquer les filtres
     apply_filters = st.sidebar.button(get_translation('apply_filters', language))
     
-    # Mode Découverte de Pépites
+    # Mode Découverte de Pépites - CORRIGÉ
     st.sidebar.markdown("---")
     if st.sidebar.button(get_translation('discover_gems', language)):
-        # Trouver des joueurs avec bon score mais faible % de sélection
-        if 'selected_by_percent' in st.session_state.predictor.players_df.columns:
-            differentials = st.session_state.predictor.players_df[
-                (st.session_state.predictor.players_df['selected_by_percent'] < 5) & 
-                (st.session_state.predictor.players_df['minutes'] > 180)
-            ].nlargest(5, 'form')
-            
-            st.markdown(f"## {get_translation('hidden_gems', language)}")
-            for _, player in differentials.iterrows():
+        gems = st.session_state.predictor.get_hidden_gems()
+        
+        st.markdown(f"## {get_translation('hidden_gems', language)}")
+        
+        if len(gems) > 0:
+            for _, player in gems.iterrows():
                 with st.container():
                     col1, col2 = st.columns([3, 1])
                     with col1:
                         st.write(f"**{player['web_name']}** - {st.session_state.predictor.get_team_name(player['team'])}")
-                        st.write(f"Forme: {player['form']:.1f} | Sélection: {player.get('selected_by_percent', 0):.1f}%")
+                        # Nettoyer l'affichage du pourcentage de sélection
+                        ownership_display = player.get('selected_by_percent', 0)
+                        if isinstance(ownership_display, str):
+                            ownership_display = pd.to_numeric(ownership_display, errors='coerce')
+                        st.write(f"Forme: {player['form']:.1f} | Sélection: {ownership_display:.1f}%")
                     with col2:
                         if st.button("🔍 Voir", key=f"gem_{player['id']}"):
                             st.session_state.search_player = player['web_name']
+        else:
+            st.info("🔍 Aucune pépite trouvée" if language == 'fr' else "🔍 No hidden gems found")
     
     # Section recherche principale
     if player_name:
@@ -608,7 +626,7 @@ def main():
                 with col8:
                     st.info(f"**{get_translation('opponent', language)}:** {vs_text} {opponent_name}")
                 
-                # ANALYSE AVANCÉE
+                # ANALYSE AVANCÉE - CORRIGÉE
                 st.markdown("---")
                 st.markdown(f"#### {get_translation('advanced_analysis', language)}")
                 
@@ -618,20 +636,23 @@ def main():
                     # Confiance basée sur les minutes
                     confidence_score = min(95, (player['minutes'] / 540) * 100)
                     st.metric(get_translation('confidence', language), f"{confidence_score:.0f}%")
-                    st.progress(confidence_score / 100)
+                    # Barre de progression DANS la même colonne
+                    st.progress(int(confidence_score) / 100)
                 
                 with col_conf2:
                     # Rapport qualité-prix
                     value_ratio = predicted_points / (player['cost'] + 0.1)
                     value_stars = min(5, max(1, int(value_ratio * 3)))
                     st.metric(get_translation('value', language), "⭐" * value_stars)
+                    # Légende DANS la même colonne
                     st.caption(f"{value_ratio:.2f} pts/M")
                 
                 with col_conf3:
                     # Risque/Bénéfice
                     risk_level = "Faible" if predicted_points >= 6 else "Moyen" if predicted_points >= 4 else "Élevé"
+                    risk_en = "Low" if predicted_points >= 6 else "Medium" if predicted_points >= 4 else "High"
                     risk_emoji = "🟢" if risk_level == "Faible" else "🟡" if risk_level == "Moyen" else "🔴"
-                    st.metric(get_translation('risk', language), f"{risk_emoji} {risk_level}")
+                    st.metric(get_translation('risk', language), f"{risk_emoji} {risk_level if language == 'fr' else risk_en}")
                 
                 # ALERTES ET RECOMMANDATIONS
                 alerts = []
@@ -695,7 +716,10 @@ def main():
     if st.sidebar.button(get_translation('view_top10', language)):
         st.markdown(f"## {get_translation('top_predictions', language)}")
         
-        # Calculer les prédictions pour tous les joueurs
+        if st.session_state.predictor.model is None:
+            st.error("❌ Modèle non disponible" if language == 'fr' else "❌ Model not available")
+            return
+        
         all_predictions = []
         X, feature_names = st.session_state.predictor.prepare_features()
         
