@@ -317,15 +317,22 @@ class FPLWebPredictor:
         return X, available_features
     
     def train_model(self):
-        """Entraîne le modèle"""
+        """Entraîne le modèle avec ajustements plus réalistes"""
         X, feature_names = self.prepare_features()
         y = self.players_df['points_per_game'].copy()
         
-        # Ajustements
+        # Ajustements PLUS RÉALISTES
         minutes_threshold = 180
         low_minutes_players = self.players_df['minutes'] < minutes_threshold
-        y[low_minutes_players] = y[low_minutes_players] * 0.7
-        y = y.clip(upper=12.0)
+        y[low_minutes_players] = y[low_minutes_players] * 0.8  # Moins sévère
+        
+        # Ajustement pour les stars (joueurs chers avec bon historique)
+        expensive_players = self.players_df['now_cost'] > 100  # > 10M
+        high_form_players = self.players_df['form'] > 6
+        star_players = expensive_players & high_form_players
+        y[star_players] = y[star_players] * 1.15  # Boost de 15% pour les stars
+        
+        y = y.clip(upper=15.0)  # Limite plus haute pour les meilleurs joueurs
         
         # Filtrer les joueurs valides
         valid_players = self.players_df['minutes'] > 90
@@ -335,11 +342,11 @@ class FPLWebPredictor:
         if len(X_filtered) == 0:
             return False
         
-        # Entraînement
+        # Entraînement avec paramètres ajustés
         self.model = xgb.XGBRegressor(
-            n_estimators=100,
-            learning_rate=0.1,
-            max_depth=6,
+            n_estimators=120,
+            learning_rate=0.08,  # Plus stable
+            max_depth=7,
             random_state=42,
             n_jobs=-1
         )
@@ -357,7 +364,7 @@ class FPLWebPredictor:
         return matches
     
     def predict_player(self, player_name):
-        """Prédit les points d'un joueur"""
+        """Prédit les points d'un joueur avec ajustements réalistes"""
         matches = self.search_player(player_name)
         
         if len(matches) == 0:
@@ -373,11 +380,28 @@ class FPLWebPredictor:
         player_features = X[player_mask].iloc[0].values.reshape(1, -1)
         predicted_points = self.model.predict(player_features)[0]
         
-        # Ajustements réalistes
+        # AJUSTEMENTS PLUS RÉALISTES
         minutes_factor = player.get('minutes_ratio', 1)
         difficulty_factor = player.get('difficulty_factor', 1)
-        final_prediction = predicted_points * minutes_factor * difficulty_factor
-        final_prediction = np.clip(final_prediction, 0, 12)
+        
+        # Boost pour les joueurs stars
+        base_prediction = predicted_points * minutes_factor * difficulty_factor
+        
+        # Facteurs supplémentaires pour plus de réalisme
+        form_boost = max(1.0, player.get('form', 0) / 5)  # Boost basé sur la forme
+        cost_factor = 1 + (player.get('cost', 0) / 20)  # Les joueurs chers ont plus de potentiel
+        ict_boost = 1 + (player.get('ict_index', 0) / 100)  # Boost basé sur l'ICT index
+        
+        final_prediction = base_prediction * form_boost * cost_factor * ict_boost
+        
+        # Ajustements spécifiques pour les positions
+        position = player.get('element_type', 0)
+        if position == 4:  # Attaquants
+            final_prediction *= 1.1
+        elif position == 3:  # Milieux
+            final_prediction *= 1.05
+        
+        final_prediction = np.clip(final_prediction, 1, 15)  # Plage plus réaliste
         
         # Obtenir le nom de l'adversaire
         opponent_id = player.get('next_opponent')
@@ -449,6 +473,10 @@ def get_translation(key, language='fr'):
 
 # Interface Streamlit
 def main():
+    # Initialisation de session_state pour la recherche
+    if 'search_player' not in st.session_state:
+        st.session_state.search_player = ""
+    
     # Sélecteur de langue
     col_lang1, col_lang2, col_lang3 = st.columns([1, 2, 1])
     with col_lang2:
@@ -493,13 +521,20 @@ def main():
         st.sidebar.metric(get_translation('active_players', language), active_players)
         st.sidebar.metric(get_translation('avg_points', language), f"{avg_points:.0f}")
     
-    # Recherche de joueur
+    # Recherche de joueur - avec gestion de session_state
     st.sidebar.markdown("---")
     st.sidebar.markdown(f"## {get_translation('player_search', language)}")
+    
+    # Utiliser session_state pour la recherche
     player_name = st.sidebar.text_input(
         get_translation('player_search', language) + ":",
-        placeholder=get_translation('player_placeholder', language)
+        placeholder=get_translation('player_placeholder', language),
+        value=st.session_state.search_player
     )
+    
+    # Mettre à jour session_state quand l'input change
+    if player_name != st.session_state.search_player:
+        st.session_state.search_player = player_name
     
     # Filtres
     st.sidebar.markdown(f"## {get_translation('filters', language)}")
@@ -524,7 +559,7 @@ def main():
     # Bouton pour appliquer les filtres
     apply_filters = st.sidebar.button(get_translation('apply_filters', language))
     
-    # Mode Découverte de Pépites - CORRIGÉ
+    # Mode Découverte de Pépites - CORRIGÉ avec session_state
     st.sidebar.markdown("---")
     if st.sidebar.button(get_translation('discover_gems', language)):
         gems = st.session_state.predictor.get_hidden_gems()
@@ -544,14 +579,17 @@ def main():
                         st.write(f"Forme: {player['form']:.1f} | Sélection: {ownership_display:.1f}%")
                     with col2:
                         if st.button("🔍 Voir", key=f"gem_{player['id']}"):
+                            # Mettre à jour session_state pour la recherche
                             st.session_state.search_player = player['web_name']
+                            st.rerun()  # Recharger la page pour afficher la recherche
         else:
             st.info("🔍 Aucune pépite trouvée" if language == 'fr' else "🔍 No hidden gems found")
     
-    # Section recherche principale
-    if player_name:
-        with st.spinner(f'{get_translation("searching", language)} {player_name}...'):
-            prediction = st.session_state.predictor.predict_player(player_name)
+    # Section recherche principale - utiliser session_state
+    current_search = st.session_state.search_player
+    if current_search:
+        with st.spinner(f'{get_translation("searching", language)} {current_search}...'):
+            prediction = st.session_state.predictor.predict_player(current_search)
             
             if prediction:
                 player = prediction['player']
@@ -572,16 +610,19 @@ def main():
                     st.markdown(f"**{get_translation('position', language)}:** {st.session_state.predictor.get_position_name(player['element_type'], language)}")
                 
                 with col2:
-                    # Affichage des points prédits
-                    if predicted_points >= 8:
+                    # Affichage des points prédits avec échelle plus réaliste
+                    if predicted_points >= 9:
                         points_class = "prediction-high"
                         emoji = "🔥🔥🔥"
-                    elif predicted_points >= 6:
+                    elif predicted_points >= 7:
                         points_class = "prediction-medium"
                         emoji = "🔥🔥"
+                    elif predicted_points >= 5:
+                        points_class = "prediction-medium"
+                        emoji = "🔥"
                     else:
                         points_class = "prediction-low"
-                        emoji = "🔥"
+                        emoji = "⚡"
                     
                     st.markdown(f'<div class="{points_class}">{emoji} {predicted_points:.1f} points {emoji}</div>', unsafe_allow_html=True)
                 
@@ -636,7 +677,6 @@ def main():
                     # Confiance basée sur les minutes
                     confidence_score = min(95, (player['minutes'] / 540) * 100)
                     st.metric(get_translation('confidence', language), f"{confidence_score:.0f}%")
-                    # Barre de progression DANS la même colonne
                     st.progress(int(confidence_score) / 100)
                 
                 with col_conf2:
@@ -644,13 +684,12 @@ def main():
                     value_ratio = predicted_points / (player['cost'] + 0.1)
                     value_stars = min(5, max(1, int(value_ratio * 3)))
                     st.metric(get_translation('value', language), "⭐" * value_stars)
-                    # Légende DANS la même colonne
                     st.caption(f"{value_ratio:.2f} pts/M")
                 
                 with col_conf3:
                     # Risque/Bénéfice
-                    risk_level = "Faible" if predicted_points >= 6 else "Moyen" if predicted_points >= 4 else "Élevé"
-                    risk_en = "Low" if predicted_points >= 6 else "Medium" if predicted_points >= 4 else "High"
+                    risk_level = "Faible" if predicted_points >= 7 else "Moyen" if predicted_points >= 5 else "Élevé"
+                    risk_en = "Low" if predicted_points >= 7 else "Medium" if predicted_points >= 5 else "High"
                     risk_emoji = "🟢" if risk_level == "Faible" else "🟡" if risk_level == "Moyen" else "🔴"
                     st.metric(get_translation('risk', language), f"{risk_emoji} {risk_level if language == 'fr' else risk_en}")
                 
@@ -668,12 +707,15 @@ def main():
                 if alerts:
                     st.warning(" | ".join(alerts))
                 
-                # RECOMMANDATION PERSONNALISÉE
-                if predicted_points >= 8:
+                # RECOMMANDATION PERSONNALISÉE avec échelle ajustée
+                if predicted_points >= 9:
                     recommendation = "💡 **Excellent choix capitaine!**" if language == 'fr' else "💡 **Great captain choice!**"
                     st.success(recommendation)
-                elif predicted_points >= 6:
+                elif predicted_points >= 7:
                     recommendation = "💡 **Solide pour ton équipe**" if language == 'fr' else "💡 **Solid starter**"
+                    st.info(recommendation)
+                elif predicted_points >= 5:
+                    recommendation = "💡 **Choix décent**" if language == 'fr' else "💡 **Decent choice**"
                     st.info(recommendation)
                 else:
                     recommendation = "💡 **Envisage d'autres options**" if language == 'fr' else "💡 **Consider alternatives**"
@@ -731,11 +773,14 @@ def main():
                         player_features = X[player_mask].iloc[0].values.reshape(1, -1)
                         predicted_points = st.session_state.predictor.model.predict(player_features)[0]
                         
-                        # Ajustements
+                        # Ajustements réalistes comme dans predict_player
                         minutes_factor = player.get('minutes_ratio', 1)
                         difficulty_factor = player.get('difficulty_factor', 1)
-                        final_prediction = predicted_points * minutes_factor * difficulty_factor
-                        final_prediction = np.clip(final_prediction, 0, 12)
+                        form_boost = max(1.0, player.get('form', 0) / 5)
+                        cost_factor = 1 + (player.get('cost', 0) / 20)
+                        
+                        final_prediction = predicted_points * minutes_factor * difficulty_factor * form_boost * cost_factor
+                        final_prediction = np.clip(final_prediction, 1, 15)
                         
                         all_predictions.append({
                             'Player' if language == 'en' else 'Joueur': player['web_name'],
