@@ -728,7 +728,7 @@ def main():
         for _, player in st.session_state.predictor.players_df.iterrows():
             if player['minutes'] > 90:  # Seulement les joueurs actifs
                 player_mask = st.session_state.predictor.players_df['id'] == player['id']
-                player_features = X[player_mask].iloc[0].values.reshape
+                player_features = X[player_mask].iloc[0].values.reshape(1, -1)
                 predicted_points = st.session_state.predictor.model.predict(player_features)[0]
                 
                 # Ajustements
@@ -736,18 +736,18 @@ def main():
                 difficulty_factor = player.get('difficulty_factor', 1)
                 final_prediction = predicted_points * minutes_factor * difficulty_factor
                 final_prediction = np.clip(final_prediction, 0, 12)
-                    
+                
                 all_predictions.append({
-                        'Player' if language == 'en' else 'Joueur': player['web_name'],
-                        'Team' if language == 'en' else 'Équipe': st.session_state.predictor.get_team_name(player['team']),
-                        'Position': st.session_state.predictor.get_position_name(player['element_type'], language),
-                        'Predicted Points' if language == 'en' else 'Points Prédits': final_prediction,
-                        'Form' if language == 'en' else 'Forme': player['form'],
-                        'Cost' if language == 'en' else 'Coût': player['cost']
+                    'Player' if language == 'en' else 'Joueur': player['web_name'],
+                    'Team' if language == 'en' else 'Équipe': st.session_state.predictor.get_team_name(player['team']),
+                    'Position': st.session_state.predictor.get_position_name(player['element_type'], language),
+                    'Predicted Points' if language == 'en' else 'Points Prédits': final_prediction,
+                    'Form' if language == 'en' else 'Forme': player['form'],
+                    'Cost' if language == 'en' else 'Coût': player['cost']
                 })
         
         # Créer le dataframe et trier
-    if all_predictions:
+        if all_predictions:
             top_df = pd.DataFrame(all_predictions)
             points_column = 'Predicted Points' if language == 'en' else 'Points Prédits'
             top_df = top_df.nlargest(10, points_column)
@@ -763,20 +763,20 @@ def main():
             })
             
             # Appliquer le gradient de couleur
-        try:
+            try:
                 styled_df = styled_df.background_gradient(subset=[points_column], cmap='YlOrRd')
-        except:
+            except:
                 pass  # Si le styling échoue, afficher sans style
                 
             st.dataframe(styled_df, use_container_width=True)
-    else:
+        else:
             st.warning("❌ Aucune prédiction disponible" if language == 'fr' else "❌ No predictions available")
     
     # Footer
-st.markdown("---")
-st.markdown(f"### {get_translation('how_to_use', language)}")
+    st.markdown("---")
+    st.markdown(f"### {get_translation('how_to_use', language)}")
     
-for step in get_translation('usage_steps', language):
+    for step in get_translation('usage_steps', language):
         st.markdown(f"- {step}")
 
 if __name__ == "__main__":
