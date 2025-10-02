@@ -74,7 +74,20 @@ TRANSLATIONS = {
         'goalkeeper': "Gardien",
         'defender': "Défenseur",
         'midfielder': "Milieu",
-        'forward': "Attaquant"
+        'forward': "Attaquant",
+        'confidence': "🎯 Confiance Prédiction",
+        'value': "💰 Valeur",
+        'risk': "⚖️ Risque",
+        'advanced_analysis': "📊 Analyse Avancée",
+        'detailed_stats': "📊 Voir Stats Détaillées",
+        'add_favorites': "❤️ Ajouter Favoris",
+        'advanced_stats': "📈 Statistiques Avancées",
+        'global_stats': "📊 Stats Globales",
+        'total_players': "Joueurs totaux",
+        'active_players': "Joueurs actifs",
+        'avg_points': "Points moyens",
+        'discover_gems': "💎 Découvrir des Pépites",
+        'hidden_gems': "💎 Pépites Sous-Estimées"
     },
     'en': {
         'title': "⚽ FPL Predictor Pro",
@@ -129,7 +142,20 @@ TRANSLATIONS = {
         'goalkeeper': "Goalkeeper",
         'defender': "Defender",
         'midfielder': "Midfielder",
-        'forward': "Forward"
+        'forward': "Forward",
+        'confidence': "🎯 Prediction Confidence",
+        'value': "💰 Value",
+        'risk': "⚖️ Risk",
+        'advanced_analysis': "📊 Advanced Analysis",
+        'detailed_stats': "📊 View Detailed Stats",
+        'add_favorites': "❤️ Add to Favorites",
+        'advanced_stats': "📈 Advanced Statistics",
+        'global_stats': "📊 Global Stats",
+        'total_players': "Total players",
+        'active_players': "Active players",
+        'avg_points': "Average points",
+        'discover_gems': "💎 Discover Hidden Gems",
+        'hidden_gems': "💎 Hidden Gems"
     }
 }
 
@@ -164,11 +190,21 @@ st.markdown("""
         font-weight: bold;
         font-size: 1.5rem;
     }
-    .language-switcher {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        z-index: 1000;
+    .highlight-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+    }
+    @media (max-width: 768px) {
+        .player-card {
+            padding: 1rem !important;
+            margin: 0.5rem 0 !important;
+        }
+        .main-header {
+            font-size: 2rem !important;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -430,14 +466,25 @@ def main():
             else:
                 st.sidebar.error('❌ Erreur chargement données' if language == 'fr' else '❌ Data loading error')
     
+    # Stats Globales
+    st.sidebar.markdown(f"## {get_translation('global_stats', language)}")
+    total_players = len(st.session_state.predictor.players_df)
+    active_players = len(st.session_state.predictor.players_df[st.session_state.predictor.players_df['minutes'] > 180])
+    avg_points = st.session_state.predictor.players_df['total_points'].mean()
+    
+    st.sidebar.metric(get_translation('total_players', language), total_players)
+    st.sidebar.metric(get_translation('active_players', language), active_players)
+    st.sidebar.metric(get_translation('avg_points', language), f"{avg_points:.0f}")
+    
     # Recherche de joueur
+    st.sidebar.markdown("---")
     st.sidebar.markdown(f"## {get_translation('player_search', language)}")
     player_name = st.sidebar.text_input(
         get_translation('player_search', language) + ":",
         placeholder=get_translation('player_placeholder', language)
     )
     
-    # Filtres AVEC FONCTIONNALITÉ
+    # Filtres
     st.sidebar.markdown(f"## {get_translation('filters', language)}")
     
     # Filtre par équipe
@@ -459,6 +506,26 @@ def main():
     
     # Bouton pour appliquer les filtres
     apply_filters = st.sidebar.button(get_translation('apply_filters', language))
+    
+    # Mode Découverte de Pépites
+    st.sidebar.markdown("---")
+    if st.sidebar.button(get_translation('discover_gems', language)):
+        # Trouver des joueurs avec bon score mais faible % de sélection
+        differentials = st.session_state.predictor.players_df[
+            (st.session_state.predictor.players_df['selected_by_percent'] < 5) & 
+            (st.session_state.predictor.players_df['minutes'] > 180)
+        ].nlargest(5, 'form')
+        
+        st.markdown(f"## {get_translation('hidden_gems', language)}")
+        for _, player in differentials.iterrows():
+            with st.container():
+                col1, col2 = st.columns([3, 1])
+                with col1:
+                    st.write(f"**{player['web_name']}** - {st.session_state.predictor.get_team_name(player['team'])}")
+                    st.write(f"Forme: {player['form']:.1f} | Sélection: {player.get('selected_by_percent', 0):.1f}%")
+                with col2:
+                    if st.button("🔍 Voir", key=f"gem_{player['id']}"):
+                        player_name = player['web_name']
     
     # Section recherche principale
     if player_name:
@@ -538,37 +605,90 @@ def main():
                 with col8:
                     st.info(f"**{get_translation('opponent', language)}:** {vs_text} {opponent_name}")
                 
-                # Prédiction et interprétation
+                # === NOUVELLES FONCTIONNALITES AMELIORÉES ===
+                
+                # 1. ANALYSE AVANCÉE
                 st.markdown("---")
-                st.markdown(f"#### {get_translation('prediction', language)}")
+                st.markdown(f"#### {get_translation('advanced_analysis', language)}")
                 
-                # Interprétation selon la langue
-                if language == 'fr':
-                    if predicted_points >= 8:
-                        interpretation = get_translation('excellent_choice', language)
-                    elif predicted_points >= 6:
-                        interpretation = get_translation('good_choice', language)
-                    elif predicted_points >= 4:
-                        interpretation = get_translation('decent_choice', language)
-                    else:
-                        interpretation = get_translation('risky_choice', language)
+                col_conf1, col_conf2, col_conf3 = st.columns(3)
+                
+                with col_conf1:
+                    # Confiance basée sur les minutes
+                    confidence_score = min(95, (player['minutes'] / 540) * 100)
+                    st.metric(get_translation('confidence', language), f"{confidence_score:.0f}%")
+                    st.progress(confidence_score / 100)
+                
+                with col_conf2:
+                    # Rapport qualité-prix
+                    value_ratio = predicted_points / (player['cost'] + 0.1)
+                    value_stars = min(5, max(1, int(value_ratio * 3)))
+                    st.metric(get_translation('value', language), "⭐" * value_stars)
+                    st.caption(f"{value_ratio:.2f} pts/M")
+                
+                with col_conf3:
+                    # Risque/Bénéfice
+                    risk_level = "Faible" if predicted_points >= 6 else "Moyen" if predicted_points >= 4 else "Élevé"
+                    risk_emoji = "🟢" if risk_level == "Faible" else "🟡" if risk_level == "Moyen" else "🔴"
+                    st.metric(get_translation('risk', language), f"{risk_emoji} {risk_level}")
+                
+                # 2. ALERTES ET RECOMMANDATIONS
+                alerts = []
+                
+                # Alertes de blessure
+                if 'chance_of_playing_next_round' in player and player['chance_of_playing_next_round'] < 75:
+                    alerts.append("⚠️ Risque de blessure" if language == 'fr' else "⚠️ Injury risk")
+                
+                # Alertes de suspension
+                if player['yellow_cards'] >= 4:
+                    alerts.append("🟡 Suspendu au prochain carton" if language == 'fr' else "🟡 Suspension risk")
+                
+                # Popularité
+                if 'selected_by_percent' in player and player['selected_by_percent'] > 40:
+                    alerts.append("👥 Très populaire" if language == 'fr' else "👥 Highly owned")
+                
+                if alerts:
+                    st.warning(" | ".join(alerts))
+                
+                # 3. RECOMMANDATION PERSONNALISÉE
+                if predicted_points >= 8:
+                    recommendation = "💡 **Excellent choix capitaine!**" if language == 'fr' else "💡 **Great captain choice!**"
+                    st.success(recommendation)
+                elif predicted_points >= 6:
+                    recommendation = "💡 **Solide pour ton équipe**" if language == 'fr' else "💡 **Solid starter**"
+                    st.info(recommendation)
                 else:
-                    if predicted_points >= 8:
-                        interpretation = get_translation('excellent_choice', language)
-                    elif predicted_points >= 6:
-                        interpretation = get_translation('good_choice', language)
-                    elif predicted_points >= 4:
-                        interpretation = get_translation('decent_choice', language)
-                    else:
-                        interpretation = get_translation('risky_choice', language)
+                    recommendation = "💡 **Envisage d'autres options**" if language == 'fr' else "💡 **Consider alternatives**"
+                    st.warning(recommendation)
                 
-                st.markdown(f"**{get_translation('interpretation', language)}:** {interpretation}")
+                # 4. BOUTONS ACTION
+                col_act1, col_act2 = st.columns(2)
+                
+                with col_act1:
+                    if st.button(get_translation('add_favorites', language)):
+                        if 'favorites' not in st.session_state:
+                            st.session_state.favorites = []
+                        if player['web_name'] not in st.session_state.favorites:
+                            st.session_state.favorites.append(player['web_name'])
+                            st.success("Ajouté!" if language == 'fr' else "Added!")
+                
+                with col_act2:
+                    if st.button(get_translation('detailed_stats', language)):
+                        # Expand pour plus de stats
+                        with st.expander(get_translation('advanced_stats', language)):
+                            col_stats1, col_stats2 = st.columns(2)
+                            with col_stats1:
+                                st.metric("Influence", f"{player.get('influence', 0):.0f}")
+                                st.metric("Créativité", f"{player.get('creativity', 0):.0f}")
+                            with col_stats2:
+                                st.metric("Threat", f"{player.get('threat', 0):.0f}")
+                                st.metric("ICT Index", f"{player.get('ict_index', 0):.0f}")
                 
                 st.markdown('</div>', unsafe_allow_html=True)
             else:
                 st.error(get_translation('player_not_found', language))
     
-       # Section joueurs filtrés
+    # Section joueurs filtrés
     st.sidebar.markdown("---")
     if apply_filters or st.sidebar.button(get_translation('view_filtered', language)):
         st.markdown(f"## {get_translation('filtered_players', language)}")
@@ -581,55 +701,20 @@ def main():
         else:
             st.success(get_translation('players_found', language).format(len(filtered_players)))
             
-            # Afficher un échantillon des joueurs filtrés
-            display_players = filtered_players[['web_name', 'team', 'element_type', 'form', 'points_per_game', 'total_points']].copy()
+            # Version SIMPLE sans styling compliqué
+            display_data = []
+            for _, player in filtered_players.head(20).iterrows():
+                display_data.append({
+                    'Joueur' if language == 'fr' else 'Player': player['web_name'],
+                    'Équipe' if language == 'fr' else 'Team': st.session_state.predictor.get_team_name(player['team']),
+                    'Position' if language == 'fr' else 'Position': st.session_state.predictor.get_position_name(player['element_type'], language),
+                    'Forme' if language == 'fr' else 'Form': f"{player['form']:.1f}",
+                    'PPG': f"{player['points_per_game']:.1f}",
+                    'Pts Totaux' if language == 'fr' else 'Total Points': player['total_points']
+                })
             
-            # Ajouter les noms d'équipes et positions
-            display_players['Team'] = display_players['team'].map(
-                dict(zip(st.session_state.predictor.teams_df['id'], st.session_state.predictor.teams_df['name']))
-            )
-            display_players['Position'] = display_players['element_type'].map(
-                lambda x: st.session_state.predictor.get_position_name(x, language)
-            )
-            
-            # Colonnes selon la langue - CORRECTION ICI
-            if language == 'fr':
-                display_df = display_players.rename(columns={
-                    'web_name': 'Joueur',
-                    'Team': 'Équipe', 
-                    'Position': 'Position',
-                    'form': 'Forme',
-                    'points_per_game': 'PPG',
-                    'total_points': 'Pts Totaux'
-                })[['Joueur', 'Équipe', 'Position', 'Forme', 'PPG', 'Pts Totaux']]
-            else:
-                display_df = display_players.rename(columns={
-                    'web_name': 'Player',
-                    'Team': 'Team',
-                    'Position': 'Position',
-                    'form': 'Form',
-                    'points_per_game': 'PPG',
-                    'total_points': 'Total Points'
-                })[['Player', 'Team', 'Position', 'Form', 'PPG', 'Total Points']]
-            
-            # Afficher le tableau - CORRECTION ICI
-            try:
-                if language == 'fr':
-                    styled_df = display_df.style.format({
-                        'Forme': '{:.1f}',
-                        'PPG': '{:.1f}'
-                    }).background_gradient(subset=['Forme', 'PPG'], cmap='YlOrRd')
-                else:
-                    styled_df = display_df.style.format({
-                        'Form': '{:.1f}',
-                        'PPG': '{:.1f}'
-                    }).background_gradient(subset=['Form', 'PPG'], cmap='YlOrRd')
-                
-                st.dataframe(styled_df, use_container_width=True)
-                
-            except Exception as e:
-                # Fallback simple si le styling échoue
-                st.dataframe(display_df, use_container_width=True)
+            display_df = pd.DataFrame(display_data)
+            st.dataframe(display_df, use_container_width=True)
     
     # Top 10 prédictions
     st.sidebar.markdown("---")
@@ -643,45 +728,108 @@ def main():
         for _, player in st.session_state.predictor.players_df.iterrows():
             if player['minutes'] > 90:  # Seulement les joueurs actifs
                 player_mask = st.session_state.predictor.players_df['id'] == player['id']
-                player_features = X[player_mask].iloc[0].values.reshape(1, -1)
-                predicted_points = st.session_state.predictor.model.predict(player_features)[0]
-                
-                # Ajustements
-                minutes_factor = player.get('minutes_ratio', 1)
-                difficulty_factor = player.get('difficulty_factor', 1)
-                final_prediction = predicted_points * minutes_factor * difficulty_factor
-                final_prediction = np.clip(final_prediction, 0, 12)
-                
-                all_predictions.append({
-                    'Player' if language == 'en' else 'Joueur': player['web_name'],
-                    'Team' if language == 'en' else 'Équipe': st.session_state.predictor.get_team_name(player['team']),
-                    'Position': st.session_state.predictor.get_position_name(player['element_type'], language),
-                    'Predicted Points' if language == 'en' else 'Points Prédits': final_prediction,
-                    'Form' if language == 'en' else 'Forme': player['form'],
-                    'Cost' if language == 'en' else 'Coût': player['cost']
-                })
+                player_features = X[player_mask].iloc[0].values.reshape
+                st.sidebar.markdown("---")
+    if st.sidebar.button(get_translation('view_top10', language)):
+        st.markdown(f"## {get_translation('top_predictions', language)}")
         
-        # Créer le dataframe et trier
-        top_df = pd.DataFrame(all_predictions)
-        points_column = 'Predicted Points' if language == 'en' else 'Points Prédits'
-        top_df = top_df.nlargest(10, points_column)
+        # Calculer les prédictions pour tous les joueurs
+        all_predictions = []
+        X, feature_names = st.session_state.predictor.prepare_features()
         
-        # Afficher le tableau
-        st.dataframe(top_df.style.format({
-            'Predicted Points': '{:.1f}',
-            'Points Prédits': '{:.1f}',
-            'Form': '{:.1f}',
-            'Forme': '{:.1f}',
-            'Cost': '{:.1f}',
-            'Coût': '{:.1f}'
-        }).background_gradient(subset=[points_column], cmap='YlOrRd'), use_container_width=True)
-    
-    # Footer
-    st.markdown("---")
-    st.markdown(f"### {get_translation('how_to_use', language)}")
-    
+        for _, player in st.session_state.predictor.players_df.iterrows():
+            if player['minutes'] > 90:  # Seulement les joueurs actifs
+                player_mask = st.session_state.predictor.players_df['id'] == player['id']
+                if player_mask.any():
+                    player_features = X[player_mask].iloc[0].values.reshape(1, -1)
+                    
+                    try:
+                        predicted_points = st.session_state.predictor.model.predict(player_features)[0]
+                        
+                        # Ajustements réalistes
+                        minutes_factor = player.get('minutes_ratio', 1)
+                        difficulty_factor = player.get('difficulty_factor', 1)
+                        final_prediction = predicted_points * minutes_factor * difficulty_factor
+                        final_prediction = np.clip(final_prediction, 0, 12)
+                        
+                        # Obtenir les informations de l'équipe et adversaire
+                        team_name = st.session_state.predictor.get_team_name(player['team'])
+                        opponent_id = player.get('next_opponent')
+                        opponent_name = st.session_state.predictor.get_team_name(opponent_id) if opponent_id else "Unknown"
+                        is_home = player.get('is_home', 0)
+                        
+                        all_predictions.append({
+                            'player': player['web_name'],
+                            'team': team_name,
+                            'position': st.session_state.predictor.get_position_name(player['element_type'], language),
+                            'predicted_points': final_prediction,
+                            'cost': player.get('cost', 0),
+                            'form': player.get('form', 0),
+                            'opponent': opponent_name,
+                            'is_home': is_home,
+                            'total_points': player.get('total_points', 0)
+                        })
+                    except Exception as e:
+                        continue
+        
+        # Trier par points prédits et prendre le top 10
+        if all_predictions:
+            top_predictions = sorted(all_predictions, key=lambda x: x['predicted_points'], reverse=True)[:10]
+            
+            # Afficher le top 10 sous forme de cartes
+            for i, pred in enumerate(top_predictions, 1):
+                with st.container():
+                    st.markdown(f'<div class="player-card">', unsafe_allow_html=True)
+                    
+                    col1, col2, col3, col4 = st.columns([2, 2, 1, 1])
+                    
+                    with col1:
+                        st.markdown(f"**#{i} {pred['player']}**")
+                        st.markdown(f"*{pred['team']} | {pred['position']}*")
+                    
+                    with col2:
+                        location_emoji = "🏠" if pred['is_home'] else "✈️"
+                        vs_text = "contre" if language == 'fr' else "vs"
+                        st.markdown(f"**{location_emoji} {vs_text} {pred['opponent']}**")
+                        st.markdown(f"Forme: {pred['form']:.1f} | Coût: {pred['cost']:.1f}M")
+                    
+                    with col3:
+                        # Points prédits avec couleur
+                        points = pred['predicted_points']
+                        if points >= 8:
+                            points_color = "prediction-high"
+                        elif points >= 6:
+                            points_color = "prediction-medium"
+                        else:
+                            points_color = "prediction-low"
+                        
+                        st.markdown(f'<div class="{points_color}" style="text-align: center;">{points:.1f} pts</div>', 
+                                  unsafe_allow_html=True)
+                    
+                    with col4:
+                        # Bouton pour voir les détails
+                        if st.button(f"🔍 {get_translation('detailed_stats', language).split()[-1]}", key=f"top_{i}"):
+                            # Stocker le joueur sélectionné pour affichage détaillé
+                            st.session_state.selected_player = pred['player']
+                    
+                    st.markdown('</div>', unsafe_allow_html=True)
+        else:
+            st.warning("❌ Aucune prédiction disponible" if language == 'fr' else "❌ No predictions available")
+
+    # Guide d'utilisation
+    st.sidebar.markdown("---")
+    st.sidebar.markdown(f"### {get_translation('how_to_use', language)}")
     for step in get_translation('usage_steps', language):
-        st.markdown(f"- {step}")
+        st.sidebar.markdown(f"- {step}")
+
+# Gestion du joueur sélectionné depuis le Top 10
+if 'selected_player' in st.session_state and st.session_state.selected_player:
+    player_name = st.session_state.selected_player
+    # Réinitialiser pour éviter la boucle
+    st.session_state.selected_player = None
+    # Déclencher la recherche
+    st.experimental_rerun()
 
 if __name__ == "__main__":
     main()
+                
