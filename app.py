@@ -568,7 +568,7 @@ def main():
             else:
                 st.error(get_translation('player_not_found', language))
     
-    # Section joueurs filtrés
+       # Section joueurs filtrés
     st.sidebar.markdown("---")
     if apply_filters or st.sidebar.button(get_translation('view_filtered', language)):
         st.markdown(f"## {get_translation('filtered_players', language)}")
@@ -582,7 +582,7 @@ def main():
             st.success(get_translation('players_found', language).format(len(filtered_players)))
             
             # Afficher un échantillon des joueurs filtrés
-            display_players = filtered_players[['web_name', 'team', 'element_type', 'form', 'points_per_game', 'total_points']].head(20)
+            display_players = filtered_players[['web_name', 'team', 'element_type', 'form', 'points_per_game', 'total_points']].copy()
             
             # Ajouter les noms d'équipes et positions
             display_players['Team'] = display_players['team'].map(
@@ -592,33 +592,44 @@ def main():
                 lambda x: st.session_state.predictor.get_position_name(x, language)
             )
             
-            # Colonnes selon la langue
+            # Colonnes selon la langue - CORRECTION ICI
             if language == 'fr':
-                display_columns = {
+                display_df = display_players.rename(columns={
                     'web_name': 'Joueur',
                     'Team': 'Équipe', 
                     'Position': 'Position',
                     'form': 'Forme',
                     'points_per_game': 'PPG',
                     'total_points': 'Pts Totaux'
-                }
+                })[['Joueur', 'Équipe', 'Position', 'Forme', 'PPG', 'Pts Totaux']]
             else:
-                display_columns = {
+                display_df = display_players.rename(columns={
                     'web_name': 'Player',
                     'Team': 'Team',
                     'Position': 'Position',
                     'form': 'Form',
                     'points_per_game': 'PPG',
                     'total_points': 'Total Points'
-                }
+                })[['Player', 'Team', 'Position', 'Form', 'PPG', 'Total Points']]
             
-            # Afficher le tableau
-            st.dataframe(
-                display_players.rename(columns=display_columns)
-                .style.format({'Forme': '{:.1f}', 'PPG': '{:.1f}', 'Form': '{:.1f}'})
-                .background_gradient(subset=['Forme', 'PPG', 'Form'], cmap='YlOrRd'),
-                use_container_width=True
-            )
+            # Afficher le tableau - CORRECTION ICI
+            try:
+                if language == 'fr':
+                    styled_df = display_df.style.format({
+                        'Forme': '{:.1f}',
+                        'PPG': '{:.1f}'
+                    }).background_gradient(subset=['Forme', 'PPG'], cmap='YlOrRd')
+                else:
+                    styled_df = display_df.style.format({
+                        'Form': '{:.1f}',
+                        'PPG': '{:.1f}'
+                    }).background_gradient(subset=['Form', 'PPG'], cmap='YlOrRd')
+                
+                st.dataframe(styled_df, use_container_width=True)
+                
+            except Exception as e:
+                # Fallback simple si le styling échoue
+                st.dataframe(display_df, use_container_width=True)
     
     # Top 10 prédictions
     st.sidebar.markdown("---")
