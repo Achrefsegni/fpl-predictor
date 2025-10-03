@@ -102,223 +102,325 @@ TRANSLATIONS = {
     'transfer_reason': "💡 Reason"
 }
 
-# Custom CSS with FPL-style lineup and pitch background - CORRECTED VERSION
+# Modern FPL-style CSS inspired by the reference image
 st.markdown("""
 <style>
     .main-header {
-        font-size: 3rem;
-        color: #1f77b4;
+        font-size: 2.5rem;
+        color: #37003c;
         text-align: center;
-        margin-bottom: 2rem;
-    }
-    .player-card {
-        background-color: #f0f2f6;
-        padding: 2rem;
-        border-radius: 10px;
-        margin: 1rem 0;
-        border-left: 5px solid #1f77b4;
-    }
-    .team-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin: 1rem 0;
-    }
-    .prediction-high {
-        color: #00ff00;
-        font-weight: bold;
-        font-size: 1.5rem;
-    }
-    .prediction-medium {
-        color: #ffa500;
-        font-weight: bold;
-        font-size: 1.5rem;
-    }
-    .prediction-low {
-        color: #ff0000;
-        font-weight: bold;
-        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
     }
     
-    /* FPL Lineup Styles with Pitch Background - CORRECTED */
-    .fpl-lineup-container {
-        position: relative;
-        background-image: url('https://static.fpl.team/img/pitch.svg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        border-radius: 15px;
+    /* Modern FPL Lineup Styles */
+    .fpl-modern-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
         padding: 30px;
         margin: 20px 0;
-        min-height: 600px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        min-height: 700px;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
     
-    /* Player positioning on pitch - CORRECTED VERSION */
-    .pitch-position {
+    .pitch-background {
+        background: url('https://www.footballkitarchive.com/images/stadium-background.jpg');
+        background-size: cover;
+        background-position: center;
+        border-radius: 15px;
         position: absolute;
-        z-index: 100; /* Increased z-index to appear above pitch */
+        top: 20px;
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+        opacity: 0.1;
+        z-index: 1;
+    }
+    
+    .lineup-content {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .team-header {
+        text-align: center;
+        color: white;
+        margin-bottom: 30px;
+    }
+    
+    .team-name {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    .formation {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+    
+    /* Player rows positioning */
+    .players-row {
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 20px;
+        gap: 25px;
+        margin: 25px 0;
         flex-wrap: wrap;
     }
     
-    .goalkeeper-position {
-        bottom: 50px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100%;
+    .forwards-row {
+        margin-top: 50px;
     }
     
-    .defenders-position {
-        bottom: 150px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80%;
+    .midfielders-row {
+        margin-top: 120px;
     }
     
-    .midfielders-position {
-        bottom: 250px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80%;
+    .defenders-row {
+        margin-top: 120px;
     }
     
-    .forwards-position {
-        bottom: 350px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80%;
+    .goalkeeper-row {
+        margin-top: 120px;
     }
     
-    .player-circle {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #00ff87 0%, #60efff 100%);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        color: #37003c;
-        font-weight: bold;
-        font-size: 12px;
+    /* Modern player cards */
+    .modern-player-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 15px;
+        min-width: 140px;
         text-align: center;
-        padding: 5px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        transition: transform 0.2s;
-        border: 2px solid transparent;
-        z-index: 101; /* Higher than pitch position */
-        position: relative; /* Ensure proper stacking */
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        transition: all 0.3s ease;
+        border: 3px solid transparent;
+        position: relative;
+        backdrop-filter: blur(10px);
     }
-    .player-circle:hover {
-        transform: scale(1.05);
+    
+    .modern-player-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.25);
     }
-    .player-circle.captain {
-        border: 3px solid #ffd700;
-        box-shadow: 0 0 15px #ffd700;
+    
+    .modern-player-card.captain {
+        border-color: #ffd700;
+        background: linear-gradient(135deg, #fff9c4 0%, #ffffff 100%);
     }
-    .player-circle.vice-captain {
-        border: 2px solid #c0c0c0;
+    
+    .modern-player-card.vice-captain {
+        border-color: #c0c0c0;
     }
-    .player-circle.unavailable {
-        background: linear-gradient(135deg, #ff6b6b 0%, #c0c0c0 100%);
-        opacity: 0.7;
-    }
-    .player-name {
-        font-weight: bold;
-        margin-bottom: 2px;
-    }
-    .player-details {
-        font-size: 10px;
+    
+    .modern-player-card.unavailable {
+        background: linear-gradient(135deg, #ffcdd2 0%, #ffffff 100%);
         opacity: 0.8;
     }
-    .position-row {
-        margin: 20px 0;
+    
+    .player-name {
+        font-weight: 700;
+        font-size: 14px;
+        color: #37003c;
+        margin-bottom: 5px;
+        line-height: 1.2;
+    }
+    
+    .player-team {
+        font-size: 11px;
+        color: #666;
+        margin-bottom: 3px;
+        font-weight: 600;
+    }
+    
+    .player-fixture {
+        font-size: 10px;
+        color: #37003c;
+        background: #e8f5e8;
+        padding: 2px 6px;
+        border-radius: 8px;
+        margin-bottom: 5px;
+        font-weight: 600;
+    }
+    
+    .player-fixture.away {
+        background: #fff3e0;
+    }
+    
+    .player-points {
+        font-size: 16px;
+        font-weight: 700;
+        color: #37003c;
+        margin-top: 5px;
+    }
+    
+    .player-points.high {
+        color: #00c853;
+    }
+    
+    .player-points.medium {
+        color: #ff9800;
+    }
+    
+    .player-points.low {
+        color: #f44336;
+    }
+    
+    .captain-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #ffd700;
+        color: #37003c;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 700;
+    }
+    
+    .vice-captain-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #c0c0c0;
+        color: #37003c;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        font-weight: 700;
+    }
+    
+    .unavailable-badge {
+        position: absolute;
+        top: -8px;
+        left: -8px;
+        background: #f44336;
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        font-weight: 700;
+    }
+    
+    /* Bench section */
+    .bench-section {
+        margin-top: 40px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .bench-title {
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+    
+    .bench-players {
         display: flex;
         justify-content: center;
-        width: 100%;
-    }
-    .position-title {
-        text-align: center;
-        color: white;
-        font-weight: bold;
-        margin-bottom: 10px;
-        font-size: 14px;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-        background: rgba(55, 0, 60, 0.8);
-        padding: 5px 10px;
-        border-radius: 10px;
+        gap: 15px;
+        flex-wrap: wrap;
     }
     
-    /* Transfer Suggestions */
-    .transfer-suggestion {
-        background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    .bench-player-card {
+        background: rgba(255, 255, 255, 0.9);
         border-radius: 10px;
-        padding: 15px;
-        margin: 10px 0;
-        color: white;
-    }
-    .transfer-improvement {
-        color: #00ff00;
-        font-weight: bold;
-    }
-    
-    /* Autocomplete Styles */
-    .autocomplete-suggestions {
-        border: 1px solid #ccc;
-        border-top: none;
-        max-height: 200px;
-        overflow-y: auto;
-        background: white;
-        position: absolute;
-        width: calc(100% - 40px);
-        z-index: 1000;
-        border-radius: 0 0 5px 5px;
-        margin-top: -10px;
-    }
-    .autocomplete-suggestion {
         padding: 10px;
-        cursor: pointer;
-        border-bottom: 1px solid #eee;
+        min-width: 120px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    
+    /* Stats section */
+    .stats-container {
         background: white;
-        transition: background-color 0.2s;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
-    .autocomplete-suggestion:hover {
-        background-color: #f0f0f0;
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
     }
-    .autocomplete-suggestion:last-child {
-        border-bottom: none;
+    
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
     }
-    .search-container {
-        position: relative;
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 1200px) {
+        .modern-player-card {
+            min-width: 120px;
+            padding: 12px;
+        }
+        
+        .player-name {
+            font-size: 13px;
+        }
     }
     
     @media (max-width: 768px) {
-        .player-card {
-            padding: 1rem !important;
-            margin: 0.5rem 0 !important;
-        }
-        .main-header {
-            font-size: 2rem !important;
-        }
-        .player-circle {
-            width: 60px;
-            height: 60px;
-            font-size: 10px;
-        }
-        .fpl-lineup-container {
-            min-height: 500px;
+        .fpl-modern-container {
             padding: 20px;
+            min-height: 600px;
         }
-        .defenders-position, .midfielders-position, .forwards-position {
-            flex-wrap: wrap;
-            justify-content: center;
+        
+        .players-row {
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .modern-player-card {
+            min-width: 100px;
+            padding: 10px;
+        }
+        
+        .player-name {
+            font-size: 12px;
+        }
+        
+        .team-name {
+            font-size: 1.5rem;
         }
     }
 </style>
@@ -525,12 +627,22 @@ class FPLWebPredictor:
             opponent_id = player.get('next_opponent')
             opponent_name = self.get_team_name(opponent_id) if opponent_id else "Unknown"
             
+            # Format opponent name with home/away
+            is_home = player.get('is_home', 0)
+            if opponent_name != "Unknown":
+                if is_home == 1:
+                    opponent_display = f"{opponent_name} (H)"
+                else:
+                    opponent_display = f"{opponent_name} (A)"
+            else:
+                opponent_display = "TBD"
+            
             return {
                 'player': player,
                 'predicted_points': 0.0,
                 'team_name': self.get_team_name(player['team']),
-                'opponent_name': opponent_name,
-                'is_home': player.get('is_home', 0),
+                'opponent_name': opponent_display,
+                'is_home': is_home,
                 'unavailable': True
             }
         
@@ -614,13 +726,23 @@ class FPLWebPredictor:
         # Get opponent name
         opponent_id = player.get('next_opponent')
         opponent_name = self.get_team_name(opponent_id) if opponent_id else "Unknown"
-        
+
+        # Format opponent name with home/away
+        is_home = player.get('is_home', 0)
+        if opponent_name != "Unknown":
+            if is_home == 1:
+                opponent_display = f"{opponent_name} (H)"
+            else:
+                opponent_display = f"{opponent_name} (A)"
+        else:
+            opponent_display = "TBD"
+
         return {
             'player': player,
             'predicted_points': final_prediction,
             'team_name': self.get_team_name(player['team']),
-            'opponent_name': opponent_name,
-            'is_home': player.get('is_home', 0),
+            'opponent_name': opponent_display,
+            'is_home': is_home,
             'unavailable': False
         }
     
@@ -741,6 +863,9 @@ class FPLWebPredictor:
                 prediction = self.predict_player(player_name)
                 
                 if prediction:
+                    # Use the opponent name already formatted by predict_player
+                    opponent_display = prediction['opponent_name']
+
                     player_analysis = {
                         'id': player_id,
                         'name': player_name,
@@ -751,7 +876,7 @@ class FPLWebPredictor:
                         'is_captain': pick.get('is_captain', False),
                         'is_vice_captain': pick.get('is_vice_captain', False),
                         'multiplier': 2 if pick.get('is_captain', False) else 1,
-                        'opponent': prediction['opponent_name'],
+                        'opponent': opponent_display,
                         'difficulty': player.get('next_opponent_difficulty', 3),
                         'cost': player.get('now_cost', 0) / 10,
                         'unavailable': not self.is_player_available(player)
@@ -761,7 +886,7 @@ class FPLWebPredictor:
                     analysis['total_predicted_points'] += player_analysis['predicted_points'] * player_analysis['multiplier']
                     analysis['player_count'] += 1
                     
-                    # Check risks (FIXED: Remove percentage values)
+                    # Check risks
                     if not self.is_player_available(player):
                         analysis['risks'].append(f"{player_name} - Injury risk")
                     
@@ -867,12 +992,10 @@ def get_translation(key):
     """Return translation for a given key"""
     return TRANSLATIONS.get(key, key)
 
-def display_fpl_lineup(team_analysis):
-    """Display FPL-style lineup visualization with pitch background - CORRECTED VERSION"""
+def display_modern_fpl_lineup(team_analysis):
+    """Display modern FPL-style lineup similar to the reference image"""
     if not team_analysis:
         return
-    
-    st.markdown("### 🏟️ Your Team Lineup")
     
     # Group players by position
     goalkeepers = [p for p in team_analysis['players'] if p['position_code'] == 1]
@@ -880,72 +1003,225 @@ def display_fpl_lineup(team_analysis):
     midfielders = [p for p in team_analysis['players'] if p['position_code'] == 3]
     forwards = [p for p in team_analysis['players'] if p['position_code'] == 4]
     
-    # Create lineup container with pitch background
-    st.markdown(f'<div class="fpl-lineup-container">', unsafe_allow_html=True)
-    st.markdown(f"<h4 style='text-align: center; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); margin-bottom: 20px;'>{team_analysis['team_name']} - {team_analysis['formation']}</h4>", unsafe_allow_html=True)
+    # Separate starting 11 and bench
+    starting_players = goalkeepers + defenders + midfielders + forwards
+    bench_players = [p for p in team_analysis['players'] if len(starting_players) > 11 and p not in starting_players[:11]]
     
-    # Display players directly on the pitch using absolute positioning - CORRECTED
-    # Forwards (top of pitch) - NOW APPEARING ABOVE PITCH
+    st.markdown("### 🏟️ Your Team Lineup")
+    
+    # Modern lineup container
+    st.markdown('<div class="fpl-modern-container">', unsafe_allow_html=True)
+    st.markdown('<div class="pitch-background"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="lineup-content">', unsafe_allow_html=True)
+    
+    # Team header
+    st.markdown(f'''
+        <div class="team-header">
+            <div class="team-name">{team_analysis['team_name']}</div>
+            <div class="formation">{team_analysis['formation']}</div>
+        </div>
+    ''', unsafe_allow_html=True)
+    
+    # Starting 11 - Forwards (top)
     if forwards:
-        st.markdown('<div class="forwards-position">', unsafe_allow_html=True)
+        st.markdown('<div class="players-row forwards-row">', unsafe_allow_html=True)
         for forward in forwards:
-            captain_class = "captain" if forward['is_captain'] else "vice-captain" if forward['is_vice_captain'] else ""
-            unavailable_class = "unavailable" if forward['unavailable'] else ""
-            st.markdown(f'''
-                <div class="player-circle {captain_class} {unavailable_class}">
-                    <div class="player-name">{forward["name"]}</div>
-                    <div class="player-details">{forward["team"]}</div>
-                    <div class="player-details">{forward["predicted_points"]:.1f} pts</div>
-                </div>
-            ''', unsafe_allow_html=True)
+            display_modern_player_card(forward)
         st.markdown('</div>', unsafe_allow_html=True)
     
-    # Midfielders (middle of pitch) - NOW APPEARING ABOVE PITCH
+    # Midfielders
     if midfielders:
-        st.markdown('<div class="midfielders-position">', unsafe_allow_html=True)
+        st.markdown('<div class="players-row midfielders-row">', unsafe_allow_html=True)
         for midfielder in midfielders:
-            captain_class = "captain" if midfielder['is_captain'] else "vice-captain" if midfielder['is_vice_captain'] else ""
-            unavailable_class = "unavailable" if midfielder['unavailable'] else ""
-            st.markdown(f'''
-                <div class="player-circle {captain_class} {unavailable_class}">
-                    <div class="player-name">{midfielder["name"]}</div>
-                    <div class="player-details">{midfielder["team"]}</div>
-                    <div class="player-details">{midfielder["predicted_points"]:.1f} pts</div>
-                </div>
-            ''', unsafe_allow_html=True)
+            display_modern_player_card(midfielder)
         st.markdown('</div>', unsafe_allow_html=True)
     
-    # Defenders (bottom-middle of pitch) - NOW APPEARING ABOVE PITCH
+    # Defenders
     if defenders:
-        st.markdown('<div class="defenders-position">', unsafe_allow_html=True)
+        st.markdown('<div class="players-row defenders-row">', unsafe_allow_html=True)
         for defender in defenders:
-            captain_class = "captain" if defender['is_captain'] else "vice-captain" if defender['is_vice_captain'] else ""
-            unavailable_class = "unavailable" if defender['unavailable'] else ""
-            st.markdown(f'''
-                <div class="player-circle {captain_class} {unavailable_class}">
-                    <div class="player-name">{defender["name"]}</div>
-                    <div class="player-details">{defender["team"]}</div>
-                    <div class="player-details">{defender["predicted_points"]:.1f} pts</div>
-                </div>
-            ''', unsafe_allow_html=True)
+            display_modern_player_card(defender)
         st.markdown('</div>', unsafe_allow_html=True)
     
-    # Goalkeeper (bottom of pitch) - NOW APPEARING ABOVE PITCH
+    # Goalkeeper
     if goalkeepers:
-        st.markdown('<div class="goalkeeper-position">', unsafe_allow_html=True)
-        gk = goalkeepers[0]
-        captain_class = "captain" if gk['is_captain'] else "vice-captain" if gk['is_vice_captain'] else ""
-        unavailable_class = "unavailable" if gk['unavailable'] else ""
-        st.markdown(f'''
-            <div class="player-circle {captain_class} {unavailable_class}">
-                <div class="player-name">{gk["name"]}</div>
-                <div class="player-details">{gk["team"]}</div>
-                <div class="player-details">{gk["predicted_points"]:.1f} pts</div>
-            </div>
-        ''', unsafe_allow_html=True)
+        st.markdown('<div class="players-row goalkeeper-row">', unsafe_allow_html=True)
+        for goalkeeper in goalkeepers:
+            display_modern_player_card(goalkeeper)
         st.markdown('</div>', unsafe_allow_html=True)
     
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Bench section
+    if bench_players:
+        st.markdown('<div class="bench-section">', unsafe_allow_html=True)
+        st.markdown('<div class="bench-title">Bench</div>', unsafe_allow_html=True)
+        st.markdown('<div class="bench-players">', unsafe_allow_html=True)
+        for bench_player in bench_players:
+            display_bench_player_card(bench_player)
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)  # lineup-content
+    st.markdown('</div>', unsafe_allow_html=True)  # fpl-modern-container
+    
+    # Stats section below the lineup
+    display_team_stats(team_analysis)
+
+def display_modern_player_card(player):
+    """Display a modern player card using Streamlit components instead of raw HTML"""
+    # Create columns for the card layout
+    with st.container():
+        col1, col2, col3 = st.columns([1, 2, 1])
+        
+        with col2:
+            # Card container with custom styling
+            card_style = """
+            <style>
+            .player-card-container {
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 15px;
+                padding: 15px;
+                text-align: center;
+                box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+                border: 3px solid transparent;
+                margin: 10px 0;
+            }
+            .player-card-container.captain {
+                border-color: #ffd700;
+                background: linear-gradient(135deg, #fff9c4 0%, #ffffff 100%);
+            }
+            .player-card-container.vice-captain {
+                border-color: #c0c0c0;
+            }
+            .player-card-container.unavailable {
+                background: linear-gradient(135deg, #ffcdd2 0%, #ffffff 100%);
+                opacity: 0.8;
+            }
+            </style>
+            """
+            st.markdown(card_style, unsafe_allow_html=True)
+            
+            # Determine card class
+            card_class = "player-card-container"
+            if player['is_captain']:
+                card_class += " captain"
+            elif player['is_vice_captain']:
+                card_class += " vice-captain"
+            if player['unavailable']:
+                card_class += " unavailable"
+            
+            st.markdown(f'<div class="{card_class}">', unsafe_allow_html=True)
+            
+            # Player badges
+            badge_text = ""
+            if player['is_captain']:
+                badge_text = "© "
+            elif player['is_vice_captain']:
+                badge_text = "VC "
+            if player['unavailable']:
+                badge_text += "❌ "
+            
+            # Player name
+            st.markdown(f"**{badge_text}{player['name']}**")
+            
+            # Team
+            st.markdown(f"*{player['team']}*")
+            
+            # Fixture with home/away indicator
+            opponent_display = player['opponent'].replace(" (H) (H)", " (H)").replace(" (A) (A)", " (A)")
+            fixture_style = "🟢" if "(H)" in opponent_display else "🟡"
+            st.markdown(f"{fixture_style} {opponent_display}")
+            
+            # Predicted points with color coding
+            points = player['predicted_points']
+            if points >= 6:
+                points_color = "🟢"
+            elif points >= 4:
+                points_color = "🟡" 
+            else:
+                points_color = "🔴"
+            
+            st.markdown(f"### {points_color} {points:.1f} pts")
+            
+            st.markdown('</div>', unsafe_allow_html=True)
+
+def display_bench_player_card(player):
+    """Display a bench player card using Streamlit components"""
+    with st.container():
+        col1, col2, col3 = st.columns([1, 2, 1])
+        
+        with col2:
+            card_style = """
+            <style>
+            .bench-card-container {
+                background: rgba(255, 255, 255, 0.9);
+                border-radius: 10px;
+                padding: 10px;
+                text-align: center;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                margin: 5px 0;
+            }
+            .bench-card-container.unavailable {
+                background: linear-gradient(135deg, #ffcdd2 0%, #ffffff 100%);
+                opacity: 0.8;
+            }
+            </style>
+            """
+            st.markdown(card_style, unsafe_allow_html=True)
+            
+            card_class = "bench-card-container"
+            if player['unavailable']:
+                card_class += " unavailable"
+            
+            st.markdown(f'<div class="{card_class}">', unsafe_allow_html=True)
+            
+            # Player badges
+            badge_text = ""
+            if player['is_captain']:
+                badge_text = "© "
+            elif player['is_vice_captain']:
+                badge_text = "VC "
+            if player['unavailable']:
+                badge_text += "❌ "
+            
+            # Player name
+            st.markdown(f"**{badge_text}{player['name']}**")
+            
+            # Team and fixture
+            opponent_display = player['opponent'].replace(" (H) (H)", " (H)").replace(" (A) (A)", " (A)")
+            st.markdown(f"{player['team']} | {opponent_display}")
+            
+            # Predicted points
+            points = player['predicted_points']
+            if points >= 6:
+                points_color = "🟢"
+            elif points >= 4:
+                points_color = "🟡"
+            else:
+                points_color = "🔴"
+            
+            st.markdown(f"**{points_color} {points:.1f}**")
+            
+            st.markdown('</div>', unsafe_allow_html=True)
+
+def display_team_stats(team_analysis):
+    """Display team statistics"""
+    st.markdown("### 📊 Team Statistics")
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("Total Predicted Points", f"{team_analysis['total_predicted_points']:.1f}")
+    
+    with col2:
+        st.metric("Players", team_analysis['player_count'])
+    
+    with col3:
+        captain_name = team_analysis['best_captain']['name'] if team_analysis['best_captain'] else "None"
+        st.metric("Best Captain", captain_name.split()[-1])
+    
+    with col4:
+        risk_count = len(team_analysis['risks'])
+        st.metric("Risks", risk_count)
 
 def create_autocomplete_search():
     """Create search input with autocomplete functionality"""
@@ -959,9 +1235,6 @@ def create_autocomplete_search():
         st.session_state.show_suggestions = False
     if 'selected_suggestion' not in st.session_state:
         st.session_state.selected_suggestion = None
-    
-    # Search container for proper positioning
-    st.sidebar.markdown('<div class="search-container">', unsafe_allow_html=True)
     
     # Search input
     search_input = st.sidebar.text_input(
@@ -982,18 +1255,13 @@ def create_autocomplete_search():
     
     # Display suggestions
     if st.session_state.show_suggestions:
-        suggestions_html = '<div class="autocomplete-suggestions">'
+        st.sidebar.markdown("**Suggestions:**")
         for suggestion in st.session_state.search_suggestions:
-            # Create a unique key for each suggestion button
-            suggestion_key = f"sugg_{suggestion}"
-            if st.sidebar.button(suggestion, key=suggestion_key, use_container_width=True):
+            if st.sidebar.button(suggestion, key=f"sugg_{suggestion}"):
                 st.session_state.search_player = suggestion
                 st.session_state.show_suggestions = False
                 st.session_state.selected_suggestion = suggestion
                 st.rerun()
-        st.sidebar.markdown('</div>', unsafe_allow_html=True)
-    
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)
     
     # Update main search state when input changes or suggestion is selected
     if (search_input != st.session_state.get('search_player', '') or 
@@ -1047,7 +1315,7 @@ def main():
         st.sidebar.metric(get_translation('active_players'), active_players)
         st.sidebar.metric(get_translation('avg_points'), f"{avg_points:.0f}")
     
-    # NEW: FPL Team Analysis
+    # FPL Team Analysis
     st.sidebar.markdown("---")
     st.sidebar.markdown(f"## {get_translation('team_analysis')}")
     
@@ -1067,7 +1335,7 @@ def main():
     
     analyze_team = st.sidebar.button(get_translation('analyze_team'))
     
-    # NEW: Autocomplete Search
+    # Autocomplete Search
     create_autocomplete_search()
     
     # Filters
@@ -1112,29 +1380,18 @@ def main():
         else:
             st.info("🔍 No hidden gems found")
     
-    # NEW: Team Analysis Section
+    # Team Analysis Section
     if analyze_team and st.session_state.team_id:
         with st.spinner('🔍 Analyzing your FPL team...'):
             team_analysis = st.session_state.predictor.analyze_user_team(st.session_state.team_id)
             
             if team_analysis:
                 st.markdown(f"## {get_translation('team_analysis_title')}")
-                st.markdown(f"### 🏠 {team_analysis['team_name']}")
                 
-                # Display FPL-style lineup with pitch background - NOW CORRECTED
-                display_fpl_lineup(team_analysis)
+                # Display modern FPL-style lineup
+                display_modern_fpl_lineup(team_analysis)
                 
-                # Total points card
-                col_total1, col_total2, col_total3 = st.columns(3)
-                with col_total1:
-                    st.metric(get_translation('total_predicted_points'), f"{team_analysis['total_predicted_points']:.1f}")
-                with col_total2:
-                    if team_analysis['best_captain']:
-                        st.metric(get_translation('best_captain'), team_analysis['best_captain']['name'])
-                with col_total3:
-                    st.metric("👥 Player count", team_analysis['player_count'])
-                
-                # NEW: Suggested Transfers
+                # Suggested Transfers
                 st.markdown("---")
                 st.markdown(f"### {get_translation('suggested_transfers')}")
                 
@@ -1143,7 +1400,6 @@ def main():
                 if transfer_suggestions:
                     for i, suggestion in enumerate(transfer_suggestions):
                         with st.container():
-                            st.markdown(f'<div class="transfer-suggestion">', unsafe_allow_html=True)
                             col1, col2, col3, col4 = st.columns([2, 2, 1, 1])
                             
                             with col1:
@@ -1160,40 +1416,17 @@ def main():
                             
                             with col3:
                                 st.markdown(f"**{get_translation('expected_points_gain')}**")
-                                st.markdown(f'<div class="transfer-improvement">+{suggestion["transfer_in"]["improvement"]:.1f} pts</div>', unsafe_allow_html=True)
+                                st.markdown(f"**+{suggestion['transfer_in']['improvement']:.1f} pts**")
                             
                             with col4:
                                 st.markdown(f"**{get_translation('transfer_reason')}**")
                                 st.write(suggestion['reason'])
                                 if st.button(f"🔄 Transfer", key=f"transfer_{i}"):
                                     st.success(f"Transfer: {suggestion['transfer_out']['name']} → {suggestion['transfer_in']['name']}")
-                            
-                            st.markdown('</div>', unsafe_allow_html=True)
                 else:
                     st.info(get_translation('no_transfers_suggested'))
                 
-                # Team players details
-                st.markdown("---")
-                st.markdown(f"### {get_translation('team_players')}")
-                
-                for player in team_analysis['players']:
-                    with st.container():
-                        col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
-                        with col1:
-                            captain_emoji = "©️" if player['is_captain'] else "Ⓥ" if player['is_vice_captain'] else ""
-                            unavailable_emoji = " 🔴" if player['unavailable'] else ""
-                            st.write(f"**{player['name']}** {captain_emoji}{unavailable_emoji}")
-                            st.write(f"{player['position']} | {player['team']}")
-                        with col2:
-                            points_color = "🔴" if player['unavailable'] else "🟢" if player['predicted_points'] >= 6 else "🟡" if player['predicted_points'] >= 4 else "⚪"
-                            st.metric("Prediction", f"{points_color} {player['predicted_points']:.1f}")
-                        with col3:
-                            st.write(f"vs {player['opponent']}")
-                        with col4:
-                            difficulty_text = "🟢" if player['difficulty'] <= 2 else "🟡" if player['difficulty'] == 3 else "🔴"
-                            st.write(f"Difficulty: {difficulty_text}")
-                
-                # Risks (FIXED: No percentages)
+                # Risks
                 if team_analysis['risks']:
                     st.markdown(f"### {get_translation('team_risks')}")
                     for risk in team_analysis['risks']:
@@ -1216,8 +1449,7 @@ def main():
                 unavailable = prediction.get('unavailable', False)
                 
                 # Player card
-                st.markdown(f'<div class="player-card">', unsafe_allow_html=True)
-                
+                st.markdown("---")
                 col1, col2 = st.columns([2, 1])
                 
                 with col1:
@@ -1228,27 +1460,15 @@ def main():
                 
                 with col2:
                     if unavailable:
-                        points_class = "prediction-low"
-                        emoji = "❌"
-                        points_text = "0.0 points (Unavailable)"
+                        st.error("❌ 0.0 points (Unavailable)")
                     elif predicted_points >= 8:
-                        points_class = "prediction-high"
-                        emoji = "🔥🔥🔥"
-                        points_text = f"{predicted_points:.1f} points"
+                        st.success(f"🔥🔥🔥 {predicted_points:.1f} points 🔥🔥🔥")
                     elif predicted_points >= 6:
-                        points_class = "prediction-medium"
-                        emoji = "🔥🔥"
-                        points_text = f"{predicted_points:.1f} points"
+                        st.info(f"🔥🔥 {predicted_points:.1f} points 🔥🔥")
                     elif predicted_points >= 4:
-                        points_class = "prediction-medium"
-                        emoji = "🔥"
-                        points_text = f"{predicted_points:.1f} points"
+                        st.info(f"🔥 {predicted_points:.1f} points 🔥")
                     else:
-                        points_class = "prediction-low"
-                        emoji = "⚡"
-                        points_text = f"{predicted_points:.1f} points"
-                    
-                    st.markdown(f'<div class="{points_class}">{emoji} {points_text} {emoji}</div>', unsafe_allow_html=True)
+                        st.warning(f"⚡ {predicted_points:.1f} points ⚡")
                 
                 # Detailed statistics
                 st.markdown("---")
@@ -1339,8 +1559,6 @@ def main():
                 else:
                     recommendation = "💡 **Consider alternatives**"
                     st.warning(recommendation)
-                
-                st.markdown('</div>', unsafe_allow_html=True)
             else:
                 st.error(get_translation('player_not_found'))
     
