@@ -7,7 +7,7 @@ import xgboost as xgb
 import warnings
 warnings.filterwarnings('ignore')
 
-# Configuration de la page
+# Page configuration
 st.set_page_config(
     page_title="FPL Predictor Pro",
     page_icon="⚽",
@@ -15,147 +15,94 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Dictionnaires de traduction
+# English translations only
 TRANSLATIONS = {
-    'fr': {
-        'title': "⚽ FPL Predictor Pro",
-        'subtitle': "🔮 Prédictions de points pour la Gameweek 7",
-        'navigation': "🎮 Navigation",
-        'player_search': "🔍 Recherche de Joueur",
-        'player_placeholder': "ex: Salah, Haaland...",
-        'filters': "🎯 Filtres Avancés",
-        'filter_team': "Filtrer par équipe:",
-        'filter_position': "Filtrer par position:",
-        'all_teams': "Toutes",
-        'all_positions': "Toutes",
-        'apply_filters': "🔍 Appliquer les Filtres",
-        'view_filtered': "👥 Voir Joueurs Filtrés",
-        'view_top10': "🏆 Voir le Top 10",
-        'searching': "🔍 Recherche de",
-        'player_not_found': "❌ Joueur non trouvé. Essaye avec un autre nom.",
-        'player_card': "👤 Joueur",
-        'team': "🏟️ Équipe",
-        'cost': "💰 Coût",
-        'position': "📊 Position",
-        'stats': "📈 Statistiques Actuelles",
-        'form': "Forme récente",
-        'total_points': "Points totaux",
-        'ppg': "Points par match",
-        'goals': "Buts",
-        'assists': "Passes",
-        'minutes': "Minutes",
-        'match_context': "📅 Contexte du Match",
-        'location': "Lieu",
-        'difficulty': "Difficulté",
-        'opponent': "Adversaire",
-        'home': "🏠 Domicile",
-        'away': "✈️ Extérieur",
-        'prediction': "🔮 Prédiction pour la GW7",
-        'interpretation': "💡 Interprétation",
-        'excellent_choice': "Excellent choix! Fort potentiel de points cette semaine.",
-        'good_choice': "Bon choix! Performance solide attendue.",
-        'decent_choice': "Choix décent. Performance moyenne attendue.",
-        'risky_choice': "Choix risqué. Performance limitée attendue.",
-        'filtered_players': "👥 Joueurs Filtrés",
-        'no_players': "❌ Aucun joueur ne correspond aux critères sélectionnés.",
-        'players_found': "✅ {} joueurs trouvés",
-        'top_predictions': "🏆 Top 10 des Prédictions",
-        'how_to_use': "💡 Comment utiliser:",
-        'usage_steps': [
-            "🔍 Recherche un joueur spécifique",
-            "🎯 Filtres pour voir tous les joueurs d'une équipe/position",
-            "🏆 Top 10 pour les meilleures prédictions",
-            "👥 Joueurs Filtrés pour explorer par critères"
-        ],
-        'goalkeeper': "Gardien",
-        'defender': "Défenseur",
-        'midfielder': "Milieu",
-        'forward': "Attaquant",
-        'confidence': "🎯 Confiance Prédiction",
-        'value': "💰 Valeur",
-        'risk': "⚖️ Risque",
-        'advanced_analysis': "📊 Analyse Avancée",
-        'detailed_stats': "📊 Voir Stats Détaillées",
-        'add_favorites': "❤️ Ajouter Favoris",
-        'advanced_stats': "📈 Statistiques Avancées",
-        'global_stats': "📊 Stats Globales",
-        'total_players': "Joueurs totaux",
-        'active_players': "Joueurs actifs",
-        'avg_points': "Points moyens",
-        'discover_gems': "💎 Découvrir des Pépites",
-        'hidden_gems': "💎 Pépites Sous-Estimées"
-    },
-    'en': {
-        'title': "⚽ FPL Predictor Pro",
-        'subtitle': "🔮 Points Predictions for Gameweek 7",
-        'navigation': "🎮 Navigation",
-        'player_search': "🔍 Player Search",
-        'player_placeholder': "ex: Salah, Haaland...",
-        'filters': "🎯 Advanced Filters",
-        'filter_team': "Filter by team:",
-        'filter_position': "Filter by position:",
-        'all_teams': "All",
-        'all_positions': "All",
-        'apply_filters': "🔍 Apply Filters",
-        'view_filtered': "👥 View Filtered Players",
-        'view_top10': "🏆 View Top 10",
-        'searching': "🔍 Searching for",
-        'player_not_found': "❌ Player not found. Try another name.",
-        'player_card': "👤 Player",
-        'team': "🏟️ Team",
-        'cost': "💰 Cost",
-        'position': "📊 Position",
-        'stats': "📈 Current Statistics",
-        'form': "Recent form",
-        'total_points': "Total points",
-        'ppg': "Points per game",
-        'goals': "Goals",
-        'assists': "Assists",
-        'minutes': "Minutes",
-        'match_context': "📅 Match Context",
-        'location': "Location",
-        'difficulty': "Difficulty",
-        'opponent': "Opponent",
-        'home': "🏠 Home",
-        'away': "✈️ Away",
-        'prediction': "🔮 Prediction for GW7",
-        'interpretation': "💡 Interpretation",
-        'excellent_choice': "Excellent choice! High point potential this week.",
-        'good_choice': "Good choice! Solid performance expected.",
-        'decent_choice': "Decent choice. Average performance expected.",
-        'risky_choice': "Risky choice. Limited performance expected.",
-        'filtered_players': "👥 Filtered Players",
-        'no_players': "❌ No players match the selected criteria.",
-        'players_found': "✅ {} players found",
-        'top_predictions': "🏆 Top 10 Predictions",
-        'how_to_use': "💡 How to use:",
-        'usage_steps': [
-            "🔍 Search for a specific player",
-            "🎯 Filters to view all players from a team/position",
-            "🏆 Top 10 for the best predictions",
-            "👥 Filtered Players to explore by criteria"
-        ],
-        'goalkeeper': "Goalkeeper",
-        'defender': "Defender",
-        'midfielder': "Midfielder",
-        'forward': "Forward",
-        'confidence': "🎯 Prediction Confidence",
-        'value': "💰 Value",
-        'risk': "⚖️ Risk",
-        'advanced_analysis': "📊 Advanced Analysis",
-        'detailed_stats': "📊 View Detailed Stats",
-        'add_favorites': "❤️ Add to Favorites",
-        'advanced_stats': "📈 Advanced Statistics",
-        'global_stats': "📊 Global Stats",
-        'total_players': "Total players",
-        'active_players': "Active players",
-        'avg_points': "Average points",
-        'discover_gems': "💎 Discover Hidden Gems",
-        'hidden_gems': "💎 Hidden Gems"
-    }
+    'title': "⚽ FPL Predictor Pro",
+    'subtitle': "🔮 Points Predictions for Gameweek 7",
+    'navigation': "🎮 Navigation",
+    'player_search': "🔍 Player Search",
+    'player_placeholder': "ex: Salah, Haaland...",
+    'filters': "🎯 Advanced Filters",
+    'filter_team': "Filter by team:",
+    'filter_position': "Filter by position:",
+    'all_teams': "All",
+    'all_positions': "All",
+    'apply_filters': "🔍 Apply Filters",
+    'view_filtered': "👥 View Filtered Players",
+    'view_top10': "🏆 View Top 10",
+    'searching': "🔍 Searching for",
+    'player_not_found': "❌ Player not found. Try another name.",
+    'player_card': "👤 Player",
+    'team': "🏟️ Team",
+    'cost': "💰 Cost",
+    'position': "📊 Position",
+    'stats': "📈 Current Statistics",
+    'form': "Recent form",
+    'total_points': "Total points",
+    'ppg': "Points per game",
+    'goals': "Goals",
+    'assists': "Assists",
+    'minutes': "Minutes",
+    'match_context': "📅 Match Context",
+    'location': "Location",
+    'difficulty': "Difficulty",
+    'opponent': "Opponent",
+    'home': "🏠 Home",
+    'away': "✈️ Away",
+    'prediction': "🔮 Prediction for GW7",
+    'interpretation': "💡 Interpretation",
+    'excellent_choice': "Excellent choice! High point potential this week.",
+    'good_choice': "Good choice! Solid performance expected.",
+    'decent_choice': "Decent choice. Average performance expected.",
+    'risky_choice': "Risky choice. Limited performance expected.",
+    'filtered_players': "👥 Filtered Players",
+    'no_players': "❌ No players match the selected criteria.",
+    'players_found': "✅ {} players found",
+    'top_predictions': "🏆 Top 10 Predictions",
+    'how_to_use': "💡 How to use:",
+    'usage_steps': [
+        "🔍 Search for a specific player",
+        "🎯 Filters to view all players from a team/position",
+        "🏆 Top 10 for the best predictions",
+        "👥 Filtered Players to explore by criteria"
+    ],
+    'goalkeeper': "Goalkeeper",
+    'defender': "Defender",
+    'midfielder': "Midfielder",
+    'forward': "Forward",
+    'confidence': "🎯 Prediction Confidence",
+    'value': "💰 Value",
+    'risk': "⚖️ Risk",
+    'advanced_analysis': "📊 Advanced Analysis",
+    'detailed_stats': "📊 View Detailed Stats",
+    'add_favorites': "❤️ Add to Favorites",
+    'advanced_stats': "📈 Advanced Statistics",
+    'global_stats': "📊 Global Stats",
+    'total_players': "Total players",
+    'active_players': "Active players",
+    'avg_points': "Average points",
+    'discover_gems': "💎 Discover Hidden Gems",
+    'hidden_gems': "💎 Hidden Gems",
+    'team_analysis': "📊 My Team Analysis",
+    'enter_team_id': "🔢 Enter your FPL Team ID:",
+    'team_id_placeholder': "ex: 1234567",
+    'analyze_team': "🔍 Analyze My Team",
+    'total_predicted_points': "🎯 Total Predicted Points",
+    'team_players': "👥 Your Team Players",
+    'best_captain': "⭐ Best Captain",
+    'team_risks': "⚠️ Team Risks",
+    'no_team_data': "❌ No team data found",
+    'team_analysis_title': "📊 Complete FPL Team Analysis",
+    'suggested_transfers': "🔄 Suggested Transfers",
+    'transfer_out': "➖ Transfer Out",
+    'transfer_in': "➕ Transfer In",
+    'expected_points_gain': "📈 Expected Points Gain",
+    'make_transfer': "🔄 Make This Transfer",
+    'no_transfers_suggested': "✅ No transfers suggested - your team is optimal!",
+    'transfer_reason': "💡 Reason"
 }
 
-# CSS personnalisé
+# Custom CSS with FPL-style lineup and pitch background - CORRECTED VERSION
 st.markdown("""
 <style>
     .main-header {
@@ -170,6 +117,13 @@ st.markdown("""
         border-radius: 10px;
         margin: 1rem 0;
         border-left: 5px solid #1f77b4;
+    }
+    .team-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin: 1rem 0;
     }
     .prediction-high {
         color: #00ff00;
@@ -186,13 +140,165 @@ st.markdown("""
         font-weight: bold;
         font-size: 1.5rem;
     }
-    .highlight-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin: 1rem 0;
+    
+    /* FPL Lineup Styles with Pitch Background - CORRECTED */
+    .fpl-lineup-container {
+        position: relative;
+        background-image: url('https://static.fpl.team/img/pitch.svg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        border-radius: 15px;
+        padding: 30px;
+        margin: 20px 0;
+        min-height: 600px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
+    
+    /* Player positioning on pitch - CORRECTED VERSION */
+    .pitch-position {
+        position: absolute;
+        z-index: 100; /* Increased z-index to appear above pitch */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .goalkeeper-position {
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+    }
+    
+    .defenders-position {
+        bottom: 150px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+    }
+    
+    .midfielders-position {
+        bottom: 250px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+    }
+    
+    .forwards-position {
+        bottom: 350px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+    }
+    
+    .player-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00ff87 0%, #60efff 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #37003c;
+        font-weight: bold;
+        font-size: 12px;
+        text-align: center;
+        padding: 5px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        transition: transform 0.2s;
+        border: 2px solid transparent;
+        z-index: 101; /* Higher than pitch position */
+        position: relative; /* Ensure proper stacking */
+    }
+    .player-circle:hover {
+        transform: scale(1.05);
+    }
+    .player-circle.captain {
+        border: 3px solid #ffd700;
+        box-shadow: 0 0 15px #ffd700;
+    }
+    .player-circle.vice-captain {
+        border: 2px solid #c0c0c0;
+    }
+    .player-circle.unavailable {
+        background: linear-gradient(135deg, #ff6b6b 0%, #c0c0c0 100%);
+        opacity: 0.7;
+    }
+    .player-name {
+        font-weight: bold;
+        margin-bottom: 2px;
+    }
+    .player-details {
+        font-size: 10px;
+        opacity: 0.8;
+    }
+    .position-row {
+        margin: 20px 0;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    .position-title {
+        text-align: center;
+        color: white;
+        font-weight: bold;
+        margin-bottom: 10px;
+        font-size: 14px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        background: rgba(55, 0, 60, 0.8);
+        padding: 5px 10px;
+        border-radius: 10px;
+    }
+    
+    /* Transfer Suggestions */
+    .transfer-suggestion {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        color: white;
+    }
+    .transfer-improvement {
+        color: #00ff00;
+        font-weight: bold;
+    }
+    
+    /* Autocomplete Styles */
+    .autocomplete-suggestions {
+        border: 1px solid #ccc;
+        border-top: none;
+        max-height: 200px;
+        overflow-y: auto;
+        background: white;
+        position: absolute;
+        width: calc(100% - 40px);
+        z-index: 1000;
+        border-radius: 0 0 5px 5px;
+        margin-top: -10px;
+    }
+    .autocomplete-suggestion {
+        padding: 10px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+        background: white;
+        transition: background-color 0.2s;
+    }
+    .autocomplete-suggestion:hover {
+        background-color: #f0f0f0;
+    }
+    .autocomplete-suggestion:last-child {
+        border-bottom: none;
+    }
+    .search-container {
+        position: relative;
+    }
+    
     @media (max-width: 768px) {
         .player-card {
             padding: 1rem !important;
@@ -200,6 +306,19 @@ st.markdown("""
         }
         .main-header {
             font-size: 2rem !important;
+        }
+        .player-circle {
+            width: 60px;
+            height: 60px;
+            font-size: 10px;
+        }
+        .fpl-lineup-container {
+            min-height: 500px;
+            padding: 20px;
+        }
+        .defenders-position, .midfielders-position, .forwards-position {
+            flex-wrap: wrap;
+            justify-content: center;
         }
     }
 </style>
@@ -212,9 +331,10 @@ class FPLWebPredictor:
         self.fixtures_df = None
         self.model = None
         self.scaler = StandardScaler()
+        self.all_player_names = []
         
     def load_all_fpl_data(self):
-        """Charge les données FPL"""
+        """Load FPL data"""
         try:
             bootstrap_url = "https://fantasy.premierleague.com/api/bootstrap-static/"
             response = requests.get(bootstrap_url, timeout=10)
@@ -227,13 +347,32 @@ class FPLWebPredictor:
             fixtures_response = requests.get(fixtures_url, timeout=10)
             self.fixtures_df = pd.DataFrame(fixtures_response.json())
             
+            # Store all player names for autocomplete
+            self.all_player_names = self.players_df['web_name'].tolist()
+            
             return True
         except Exception as e:
-            st.error(f"Erreur de chargement: {e}")
+            st.error(f"Loading error: {e}")
             return False
     
+    def search_players_autocomplete(self, query):
+        """Search for players starting with the query (case insensitive)"""
+        if not query or len(query.strip()) < 1:
+            return []
+        
+        query_lower = query.lower()
+        matches = [name for name in self.all_player_names 
+                  if name.lower().startswith(query_lower)]
+        
+        # If no starts-with matches, try contains
+        if not matches:
+            matches = [name for name in self.all_player_names 
+                      if query_lower in name.lower()]
+        
+        return matches[:10]  # Return top 10 matches
+    
     def clean_numeric_data(self, series):
-        """Nettoie les données numériques"""
+        """Clean numeric data"""
         if pd.api.types.is_numeric_dtype(series):
             return series
         series_clean = series.replace([None, 'None', 'null', ''], '0')
@@ -243,8 +382,8 @@ class FPLWebPredictor:
             return pd.Series([0] * len(series), index=series.index)
     
     def create_features(self):
-        """Crée les features pour le modèle"""
-        # Nettoyage
+        """Create features for the model"""
+        # Data cleaning
         critical_columns = ['form', 'points_per_game', 'goals_scored', 'assists', 'minutes', 
                            'total_points', 'influence', 'creativity', 'threat', 'ict_index', 'bps']
         
@@ -252,29 +391,29 @@ class FPLWebPredictor:
             if col in self.players_df.columns:
                 self.players_df[col] = self.clean_numeric_data(self.players_df[col])
         
-        # Features de base
+        # Basic features
         self.players_df['cost'] = self.players_df['now_cost'] / 10
         self.players_df['points_per_minute'] = self.players_df['total_points'] / self.players_df['minutes']
         self.players_df['points_per_minute'] = self.players_df['points_per_minute'].replace([np.inf, -np.inf], 0).fillna(0)
         
-        # Impact offensif
+        # Offensive impact
         self.players_df['goal_involvement_per_90'] = (self.players_df['goals_scored'] + self.players_df['assists']) / (self.players_df['minutes'] / 90)
         self.players_df['goal_involvement_per_90'] = self.players_df['goal_involvement_per_90'].replace([np.inf, -np.inf], 0).fillna(0)
         
-        # Consistance
+        # Consistency
         self.players_df['consistency_score'] = self.players_df['points_per_game'] / self.players_df['points_per_game'].max()
         
         # Minutes stability
-        self.players_df['minutes_ratio'] = self.players_df['minutes'] / (6 * 90)
+        self.players_df['minutes_ratio'] = self.players_df['minutes'] / (6 * 90)  # Using GW6 data
         self.players_df['minutes_ratio'] = self.players_df['minutes_ratio'].clip(0, 1)
         
-        # Features d'équipe
+        # Team features
         team_strength = dict(zip(self.teams_df['id'], self.teams_df['strength']))
         team_attack = dict(zip(self.teams_df['id'], self.teams_df['strength_attack_home']))
         self.players_df['team_strength'] = self.players_df['team'].map(team_strength)
         self.players_df['team_attack'] = self.players_df['team'].map(team_attack)
         
-        # Contexte du match
+        # Match context for GW7
         next_gw_fixtures = self.fixtures_df[self.fixtures_df['event'] == 7]
         team_difficulty = {}
         home_advantage = {}
@@ -289,7 +428,7 @@ class FPLWebPredictor:
             home_advantage[team_h] = 1
             home_advantage[team_a] = 0
             
-            # Mapping adversaire
+            # Opponent mapping
             opponent_mapping[team_h] = team_a
             opponent_mapping[team_a] = team_h
         
@@ -299,7 +438,7 @@ class FPLWebPredictor:
         self.players_df['difficulty_factor'] = (6 - self.players_df['next_opponent_difficulty']) / 5
     
     def prepare_features(self):
-        """Prépare les features pour le modèle"""
+        """Prepare features for the model"""
         feature_columns = [
             'points_per_game', 'form', 'points_per_minute', 'consistency_score',
             'goal_involvement_per_90', 'minutes_ratio', 'team_attack', 'cost',
@@ -317,18 +456,18 @@ class FPLWebPredictor:
         return X, available_features
     
     def train_model(self):
-        """Entraîne le modèle avec ajustements réalistes"""
+        """Train the model with realistic adjustments"""
         X, feature_names = self.prepare_features()
         y = self.players_df['points_per_game'].copy()
         
-        # Ajustements réalistes
+        # Realistic adjustments
         minutes_threshold = 180
         low_minutes_players = self.players_df['minutes'] < minutes_threshold
         y[low_minutes_players] = y[low_minutes_players] * 0.8
         
         y = y.clip(upper=10.0)
         
-        # Filtrer les joueurs valides
+        # Filter valid players (using GW6 data)
         valid_players = self.players_df['minutes'] > 90
         X_filtered = X[valid_players]
         y_filtered = y[valid_players]
@@ -336,7 +475,7 @@ class FPLWebPredictor:
         if len(X_filtered) == 0:
             return False
         
-        # Entraînement
+        # Training
         self.model = xgb.XGBRegressor(
             n_estimators=100,
             learning_rate=0.1,
@@ -348,7 +487,7 @@ class FPLWebPredictor:
         return True
     
     def search_player(self, player_name):
-        """Recherche un joueur"""
+        """Search for a player"""
         if not player_name or len(player_name.strip()) < 2:
             return pd.DataFrame()
         player_name_lower = player_name.lower()
@@ -357,14 +496,44 @@ class FPLWebPredictor:
         ]
         return matches
     
+    def is_player_available(self, player):
+        """Check if player is available to play (not injured or suspended)"""
+        # Check injury status
+        if 'chance_of_playing_next_round' in player and player['chance_of_playing_next_round'] is not None:
+            if player['chance_of_playing_next_round'] == 0:
+                return False
+        
+        # Check suspension (5 yellow cards or red card suspension)
+        if player.get('yellow_cards', 0) >= 5:
+            return False
+        if player.get('red_cards', 0) > 0:
+            return False
+            
+        return True
+    
     def predict_player(self, player_name):
-        """Prédit les points d'un joueur avec facteur difficulté renforcé"""
+        """Predict player points with enhanced difficulty factor"""
         matches = self.search_player(player_name)
         
         if len(matches) == 0:
             return None
         
         player = matches.iloc[0]
+        
+        # Check if player is available - if not, return 0 points
+        if not self.is_player_available(player):
+            opponent_id = player.get('next_opponent')
+            opponent_name = self.get_team_name(opponent_id) if opponent_id else "Unknown"
+            
+            return {
+                'player': player,
+                'predicted_points': 0.0,
+                'team_name': self.get_team_name(player['team']),
+                'opponent_name': opponent_name,
+                'is_home': player.get('is_home', 0),
+                'unavailable': True
+            }
+        
         X, feature_names = self.prepare_features()
         
         player_mask = self.players_df['id'] == player['id']
@@ -374,60 +543,60 @@ class FPLWebPredictor:
         player_features = X[player_mask].iloc[0].values.reshape(1, -1)
         predicted_points = self.model.predict(player_features)[0]
         
-        # FACTEUR DIFFICULTÉ BEAUCOUP PLUS IMPORTANT
+        # MUCH MORE IMPORTANT DIFFICULTY FACTOR
         difficulty = player.get('next_opponent_difficulty', 3)
         
-        # Impact massif de la difficulté
-        if difficulty >= 4:  # Adversaire difficile
-            difficulty_penalty = 0.4  # -60% pour les matchs très difficiles
-        elif difficulty == 3:  # Adversaire moyen
+        # Massive difficulty impact
+        if difficulty >= 4:  # Difficult opponent
+            difficulty_penalty = 0.4  # -60% for very difficult matches
+        elif difficulty == 3:  # Medium opponent
             difficulty_penalty = 0.7  # -30%
-        elif difficulty == 2:  # Adversaire facile
-            difficulty_penalty = 1.0  # Pas de changement
-        else:  # Adversaire très facile (1)
+        elif difficulty == 2:  # Easy opponent
+            difficulty_penalty = 1.0  # No change
+        else:  # Very easy opponent (1)
             difficulty_penalty = 1.3  # +30%
         
-        # Ajustements par position basés sur la difficulté
+        # Position adjustments based on difficulty
         position = player.get('element_type', 0)
         position_factor = 1.0
         
-        if position == 1:  # Gardien
-            if difficulty <= 2:  # Match facile = plus de chance de clean sheet
+        if position == 1:  # Goalkeeper
+            if difficulty <= 2:  # Easy match = more clean sheet chances
                 position_factor = 1.4
-            elif difficulty >= 4:  # Match difficile = risque d'encaisser
+            elif difficulty >= 4:  # Difficult match = risk of conceding
                 position_factor = 0.5
         
-        elif position == 2:  # Défenseur
-            if difficulty <= 2:  # Match facile = plus de chance de clean sheet
+        elif position == 2:  # Defender
+            if difficulty <= 2:  # Easy match = more clean sheet chances
                 position_factor = 1.3
-            elif difficulty >= 4:  # Match difficile = risque d'encaisser
+            elif difficulty >= 4:  # Difficult match = risk of conceding
                 position_factor = 0.6
         
-        elif position == 3:  # Milieu
-            if difficulty <= 2:  # Match facile = plus d'occasions offensives
+        elif position == 3:  # Midfielder
+            if difficulty <= 2:  # Easy match = more offensive opportunities
                 position_factor = 1.2
-            elif difficulty >= 4:  # Match difficile = moins d'impact offensif
+            elif difficulty >= 4:  # Difficult match = less offensive impact
                 position_factor = 0.8
         
-        elif position == 4:  # Attaquant
-            if difficulty <= 2:  # Match facile = plus de chances de but
+        elif position == 4:  # Forward
+            if difficulty <= 2:  # Easy match = more goal chances
                 position_factor = 1.4
-            elif difficulty >= 4:  # Match difficile = défense solide adverse
+            elif difficulty >= 4:  # Difficult match = strong opponent defense
                 position_factor = 0.7
         
-        # Facteur minutes (joueurs réguliers)
+        # Minutes factor (regular players)
         minutes_factor = player.get('minutes_ratio', 0.5)
         
-        # Facteur forme (modéré)
+        # Form factor (moderate)
         form_boost = 1.0 + (player.get('form', 0) - 5) * 0.05
         
-        # CALCUL FINAL AVEC DIFFICULTÉ PRÉPONDÉRANTE
+        # FINAL CALCULATION WITH PREPONDERANT DIFFICULTY
         base_prediction = predicted_points
         
         final_prediction = (base_prediction * difficulty_penalty * 
                            position_factor * minutes_factor * form_boost)
         
-        # Ajustement manuel basé sur expertise
+        # Manual adjustments based on expertise
         manual_adjustments = {
             'haaland': 7.0, 'gabriel': 6.9, 'timber': 6.4, 
             'saka': 5.9, 'bowen': 2.9, 'salah': 4.2
@@ -439,65 +608,63 @@ class FPLWebPredictor:
                 final_prediction = points
                 break
         
-        # Limite réaliste
+        # Realistic limit
         final_prediction = np.clip(final_prediction, 1, 10)
         
-        # Obtenir le nom de l'adversaire
+        # Get opponent name
         opponent_id = player.get('next_opponent')
-        opponent_name = self.get_team_name(opponent_id) if opponent_id else "Inconnu"
+        opponent_name = self.get_team_name(opponent_id) if opponent_id else "Unknown"
         
         return {
             'player': player,
             'predicted_points': final_prediction,
             'team_name': self.get_team_name(player['team']),
             'opponent_name': opponent_name,
-            'is_home': player.get('is_home', 0)
+            'is_home': player.get('is_home', 0),
+            'unavailable': False
         }
     
     def get_team_name(self, team_id):
-        """Retourne le nom de l'équipe"""
+        """Return team name"""
+        if self.teams_df is None:
+            return "Unknown"
         team_mapping = dict(zip(self.teams_df['id'], self.teams_df['name']))
         return team_mapping.get(team_id, 'Unknown')
     
-    def get_position_name(self, position_code, language='fr'):
-        """Retourne le nom de la position"""
-        positions_fr = {1: "Gardien", 2: "Défenseur", 3: "Milieu", 4: "Attaquant"}
-        positions_en = {1: "Goalkeeper", 2: "Defender", 3: "Midfielder", 4: "Forward"}
-        
-        if language == 'en':
-            return positions_en.get(position_code, "Unknown")
-        return positions_fr.get(position_code, "Inconnu")
+    def get_position_name(self, position_code):
+        """Return position name"""
+        positions = {1: "Goalkeeper", 2: "Defender", 3: "Midfielder", 4: "Forward"}
+        return positions.get(position_code, "Unknown")
     
     def get_filtered_players(self, team_filter, position_filter):
-        """Filtre les joueurs selon les critères"""
+        """Filter players according to criteria"""
         filtered_players = self.players_df.copy()
         
-        # Filtre par équipe
-        if team_filter != "Toutes" and team_filter != "All":
+        # Filter by team
+        if team_filter != "All":
             team_id = self.teams_df[self.teams_df['name'] == team_filter]['id'].values
             if len(team_id) > 0:
                 filtered_players = filtered_players[filtered_players['team'] == team_id[0]]
         
-        # Filtre par position
-        if position_filter != "Toutes" and position_filter != "All":
-            position_map_fr = {"Gardien": 1, "Défenseur": 2, "Milieu": 3, "Attaquant": 4}
-            position_map_en = {"Goalkeeper": 1, "Defender": 2, "Midfielder": 3, "Forward": 4}
+        # Filter by position
+        if position_filter != "All":
+            position_map = {"Goalkeeper": 1, "Defender": 2, "Midfielder": 3, "Forward": 4}
             
-            position_code = position_map_fr.get(position_filter) or position_map_en.get(position_filter)
+            position_code = position_map.get(position_filter)
             if position_code:
                 filtered_players = filtered_players[filtered_players['element_type'] == position_code]
         
         return filtered_players
     
     def get_hidden_gems(self, max_ownership=5, min_minutes=180, top_n=5):
-        """Trouve des joueurs sous-estimés"""
+        """Find underestimated players"""
         if 'selected_by_percent' not in self.players_df.columns:
             return pd.DataFrame()
         
-        # Nettoyer la colonne selected_by_percent
+        # Clean selected_by_percent column
         ownership_clean = pd.to_numeric(self.players_df['selected_by_percent'], errors='coerce').fillna(0)
         
-        # Filtrer les joueurs
+        # Filter players
         gems = self.players_df[
             (ownership_clean < max_ownership) & 
             (self.players_df['minutes'] > min_minutes) &
@@ -505,105 +672,428 @@ class FPLWebPredictor:
         ].nlargest(top_n, 'form')
         
         return gems
+    
+    def get_user_team_data(self, team_id):
+        """Get user team data"""
+        try:
+            # Check if ID is valid
+            if not team_id or not team_id.isdigit():
+                st.error("❌ Invalid team ID")
+                return None
+                
+            # Get basic team data
+            team_url = f"https://fantasy.premierleague.com/api/entry/{team_id}/"
+            team_response = requests.get(team_url, timeout=10)
+            
+            if team_response.status_code != 200:
+                st.error(f"❌ Team not found. Check your Team ID: {team_id}")
+                return None
+            
+            team_data = team_response.json()
+            
+            # Get selected players for current gameweek (GW6)
+            current_gw = 6  # Using last completed gameweek
+            
+            picks_url = f"https://fantasy.premierleague.com/api/entry/{team_id}/event/{current_gw}/picks/"
+            picks_response = requests.get(picks_url, timeout=10)
+            
+            if picks_response.status_code != 200:
+                st.error("❌ Cannot retrieve team players")
+                return None
+            
+            picks_data = picks_response.json()
+            
+            return {
+                'team_info': team_data,
+                'picks': picks_data
+            }
+        except Exception as e:
+            st.error(f"❌ Loading error: {str(e)}")
+            return None
 
-def get_translation(key, language='fr'):
-    """Retourne la traduction pour une clé donnée"""
-    return TRANSLATIONS[language].get(key, key)
+    def analyze_user_team(self, team_id):
+        """Analyze user team and return predictions"""
+        team_data = self.get_user_team_data(team_id)
+        
+        if not team_data:
+            return None
+        
+        analysis = {
+            'team_name': team_data['team_info']['name'],
+            'total_predicted_points': 0,
+            'players': [],
+            'best_captain': None,
+            'risks': [],
+            'player_count': 0,
+            'formation': self.detect_formation(team_data['picks']['picks'])
+        }
+        
+        # Analyze each team player
+        for pick in team_data['picks']['picks']:
+            player_id = pick['element']
+            player_data = self.players_df[self.players_df['id'] == player_id]
+            
+            if len(player_data) > 0:
+                player = player_data.iloc[0]
+                player_name = player['web_name']
+                
+                # Get prediction for this player
+                prediction = self.predict_player(player_name)
+                
+                if prediction:
+                    player_analysis = {
+                        'id': player_id,
+                        'name': player_name,
+                        'position': self.get_position_name(player['element_type']),
+                        'position_code': player['element_type'],
+                        'team': self.get_team_name(player['team']),
+                        'predicted_points': prediction['predicted_points'],
+                        'is_captain': pick.get('is_captain', False),
+                        'is_vice_captain': pick.get('is_vice_captain', False),
+                        'multiplier': 2 if pick.get('is_captain', False) else 1,
+                        'opponent': prediction['opponent_name'],
+                        'difficulty': player.get('next_opponent_difficulty', 3),
+                        'cost': player.get('now_cost', 0) / 10,
+                        'unavailable': not self.is_player_available(player)
+                    }
+                    
+                    analysis['players'].append(player_analysis)
+                    analysis['total_predicted_points'] += player_analysis['predicted_points'] * player_analysis['multiplier']
+                    analysis['player_count'] += 1
+                    
+                    # Check risks (FIXED: Remove percentage values)
+                    if not self.is_player_available(player):
+                        analysis['risks'].append(f"{player_name} - Injury risk")
+                    
+                    if player.get('yellow_cards', 0) >= 4:
+                        analysis['risks'].append(f"{player_name} - Suspension risk")
+        
+        # Find best captain
+        if analysis['players']:
+            available_players = [p for p in analysis['players'] if not p['unavailable']]
+            if available_players:
+                analysis['best_captain'] = max(available_players, key=lambda x: x['predicted_points'])
+        
+        return analysis
 
-# Interface Streamlit
+    def detect_formation(self, picks):
+        """Detect team formation from player positions"""
+        position_count = {1: 0, 2: 0, 3: 0, 4: 0}
+        
+        for pick in picks:
+            player_id = pick['element']
+            player_data = self.players_df[self.players_df['id'] == player_id]
+            if len(player_data) > 0:
+                position = player_data.iloc[0]['element_type']
+                position_count[position] += 1
+        
+        # Common formations
+        formations = {
+            (1, 3, 4, 3): "3-4-3",
+            (1, 3, 5, 2): "3-5-2", 
+            (1, 4, 3, 3): "4-3-3",
+            (1, 4, 4, 2): "4-4-2",
+            (1, 4, 5, 1): "4-5-1",
+            (1, 5, 3, 2): "5-3-2",
+            (1, 5, 4, 1): "5-4-1"
+        }
+        
+        formation_key = (position_count[1], position_count[2], position_count[3], position_count[4])
+        return formations.get(formation_key, "Custom")
+
+    def suggest_transfers(self, team_analysis, max_suggestions=3):
+        """Suggest transfers to improve team"""
+        suggestions = []
+        
+        if not team_analysis or 'players' not in team_analysis:
+            return suggestions
+        
+        current_players = team_analysis['players']
+        
+        # Find weak players (low predicted points or unavailable)
+        weak_players = []
+        for player in current_players:
+            if player['unavailable'] or player['predicted_points'] < 3.0:
+                weak_players.append(player)
+        
+        # If no obviously weak players, find the lowest performers
+        if not weak_players:
+            weak_players = sorted(current_players, key=lambda x: x['predicted_points'])[:2]
+        
+        for weak_player in weak_players[:max_suggestions]:
+            # Find better alternatives in same position
+            position = weak_player['position_code']
+            current_cost = weak_player['cost']
+            
+            # Find better players in same position with similar cost
+            alternatives = self.players_df[
+                (self.players_df['element_type'] == position) &
+                (self.players_df['now_cost'] / 10 <= current_cost + 1.0) &  # Allow slight budget increase
+                (~self.players_df['id'].isin([p['id'] for p in current_players]))  # Not already in team
+            ]
+            
+            # Get predictions for alternatives
+            alternative_predictions = []
+            for _, alt_player in alternatives.iterrows():
+                alt_prediction = self.predict_player(alt_player['web_name'])
+                if alt_prediction and alt_prediction['predicted_points'] > weak_player['predicted_points']:
+                    alternative_predictions.append({
+                        'player': alt_player,
+                        'prediction': alt_prediction,
+                        'improvement': alt_prediction['predicted_points'] - weak_player['predicted_points']
+                    })
+            
+            # Sort by improvement and take best
+            alternative_predictions.sort(key=lambda x: x['improvement'], reverse=True)
+            
+            if alternative_predictions:
+                best_alternative = alternative_predictions[0]
+                suggestions.append({
+                    'transfer_out': weak_player,
+                    'transfer_in': {
+                        'name': best_alternative['player']['web_name'],
+                        'team': self.get_team_name(best_alternative['player']['team']),
+                        'position': self.get_position_name(best_alternative['player']['element_type']),
+                        'predicted_points': best_alternative['prediction']['predicted_points'],
+                        'cost': best_alternative['player']['now_cost'] / 10,
+                        'improvement': best_alternative['improvement']
+                    },
+                    'reason': "Low performance" if not weak_player['unavailable'] else "Player unavailable"
+                })
+        
+        return suggestions
+
+def get_translation(key):
+    """Return translation for a given key"""
+    return TRANSLATIONS.get(key, key)
+
+def display_fpl_lineup(team_analysis):
+    """Display FPL-style lineup visualization with pitch background - CORRECTED VERSION"""
+    if not team_analysis:
+        return
+    
+    st.markdown("### 🏟️ Your Team Lineup")
+    
+    # Group players by position
+    goalkeepers = [p for p in team_analysis['players'] if p['position_code'] == 1]
+    defenders = [p for p in team_analysis['players'] if p['position_code'] == 2]
+    midfielders = [p for p in team_analysis['players'] if p['position_code'] == 3]
+    forwards = [p for p in team_analysis['players'] if p['position_code'] == 4]
+    
+    # Create lineup container with pitch background
+    st.markdown(f'<div class="fpl-lineup-container">', unsafe_allow_html=True)
+    st.markdown(f"<h4 style='text-align: center; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); margin-bottom: 20px;'>{team_analysis['team_name']} - {team_analysis['formation']}</h4>", unsafe_allow_html=True)
+    
+    # Display players directly on the pitch using absolute positioning - CORRECTED
+    # Forwards (top of pitch) - NOW APPEARING ABOVE PITCH
+    if forwards:
+        st.markdown('<div class="forwards-position">', unsafe_allow_html=True)
+        for forward in forwards:
+            captain_class = "captain" if forward['is_captain'] else "vice-captain" if forward['is_vice_captain'] else ""
+            unavailable_class = "unavailable" if forward['unavailable'] else ""
+            st.markdown(f'''
+                <div class="player-circle {captain_class} {unavailable_class}">
+                    <div class="player-name">{forward["name"]}</div>
+                    <div class="player-details">{forward["team"]}</div>
+                    <div class="player-details">{forward["predicted_points"]:.1f} pts</div>
+                </div>
+            ''', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Midfielders (middle of pitch) - NOW APPEARING ABOVE PITCH
+    if midfielders:
+        st.markdown('<div class="midfielders-position">', unsafe_allow_html=True)
+        for midfielder in midfielders:
+            captain_class = "captain" if midfielder['is_captain'] else "vice-captain" if midfielder['is_vice_captain'] else ""
+            unavailable_class = "unavailable" if midfielder['unavailable'] else ""
+            st.markdown(f'''
+                <div class="player-circle {captain_class} {unavailable_class}">
+                    <div class="player-name">{midfielder["name"]}</div>
+                    <div class="player-details">{midfielder["team"]}</div>
+                    <div class="player-details">{midfielder["predicted_points"]:.1f} pts</div>
+                </div>
+            ''', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Defenders (bottom-middle of pitch) - NOW APPEARING ABOVE PITCH
+    if defenders:
+        st.markdown('<div class="defenders-position">', unsafe_allow_html=True)
+        for defender in defenders:
+            captain_class = "captain" if defender['is_captain'] else "vice-captain" if defender['is_vice_captain'] else ""
+            unavailable_class = "unavailable" if defender['unavailable'] else ""
+            st.markdown(f'''
+                <div class="player-circle {captain_class} {unavailable_class}">
+                    <div class="player-name">{defender["name"]}</div>
+                    <div class="player-details">{defender["team"]}</div>
+                    <div class="player-details">{defender["predicted_points"]:.1f} pts</div>
+                </div>
+            ''', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Goalkeeper (bottom of pitch) - NOW APPEARING ABOVE PITCH
+    if goalkeepers:
+        st.markdown('<div class="goalkeeper-position">', unsafe_allow_html=True)
+        gk = goalkeepers[0]
+        captain_class = "captain" if gk['is_captain'] else "vice-captain" if gk['is_vice_captain'] else ""
+        unavailable_class = "unavailable" if gk['unavailable'] else ""
+        st.markdown(f'''
+            <div class="player-circle {captain_class} {unavailable_class}">
+                <div class="player-name">{gk["name"]}</div>
+                <div class="player-details">{gk["team"]}</div>
+                <div class="player-details">{gk["predicted_points"]:.1f} pts</div>
+            </div>
+        ''', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def create_autocomplete_search():
+    """Create search input with autocomplete functionality"""
+    st.sidebar.markdown("---")
+    st.sidebar.markdown(f"## {get_translation('player_search')}")
+    
+    # Initialize session state for search
+    if 'search_suggestions' not in st.session_state:
+        st.session_state.search_suggestions = []
+    if 'show_suggestions' not in st.session_state:
+        st.session_state.show_suggestions = False
+    if 'selected_suggestion' not in st.session_state:
+        st.session_state.selected_suggestion = None
+    
+    # Search container for proper positioning
+    st.sidebar.markdown('<div class="search-container">', unsafe_allow_html=True)
+    
+    # Search input
+    search_input = st.sidebar.text_input(
+        get_translation('player_search') + ":",
+        placeholder=get_translation('player_placeholder'),
+        value=st.session_state.get('search_player', ''),
+        key="player_search_input"
+    )
+    
+    # Update suggestions as user types
+    if search_input and len(search_input) >= 1:
+        suggestions = st.session_state.predictor.search_players_autocomplete(search_input)
+        st.session_state.search_suggestions = suggestions
+        st.session_state.show_suggestions = len(suggestions) > 0
+    else:
+        st.session_state.search_suggestions = []
+        st.session_state.show_suggestions = False
+    
+    # Display suggestions
+    if st.session_state.show_suggestions:
+        suggestions_html = '<div class="autocomplete-suggestions">'
+        for suggestion in st.session_state.search_suggestions:
+            # Create a unique key for each suggestion button
+            suggestion_key = f"sugg_{suggestion}"
+            if st.sidebar.button(suggestion, key=suggestion_key, use_container_width=True):
+                st.session_state.search_player = suggestion
+                st.session_state.show_suggestions = False
+                st.session_state.selected_suggestion = suggestion
+                st.rerun()
+        st.sidebar.markdown('</div>', unsafe_allow_html=True)
+    
+    st.sidebar.markdown('</div>', unsafe_allow_html=True)
+    
+    # Update main search state when input changes or suggestion is selected
+    if (search_input != st.session_state.get('search_player', '') or 
+        st.session_state.selected_suggestion):
+        if st.session_state.selected_suggestion:
+            st.session_state.search_player = st.session_state.selected_suggestion
+            st.session_state.selected_suggestion = None
+        else:
+            st.session_state.search_player = search_input
+
+# Streamlit Interface
 def main():
-    # Initialisation de session_state pour la recherche
+    # Session state initialization
     if 'search_player' not in st.session_state:
         st.session_state.search_player = ""
+    if 'team_id' not in st.session_state:
+        st.session_state.team_id = ""
+    if 'selected_suggestion' not in st.session_state:
+        st.session_state.selected_suggestion = None
     
-    # Sélecteur de langue
-    col_lang1, col_lang2, col_lang3 = st.columns([1, 2, 1])
-    with col_lang2:
-        language = st.radio(
-            "🌍 Language / Langue:",
-            ['fr', 'en'],
-            index=0,
-            horizontal=True,
-            label_visibility="collapsed"
-        )
-    
-    # Header avec traduction
-    st.markdown(f'<h1 class="main-header">{get_translation("title", language)}</h1>', unsafe_allow_html=True)
-    st.markdown(f"### {get_translation('subtitle', language)}")
+    # Header with translation
+    st.markdown(f'<h1 class="main-header">{get_translation("title")}</h1>', unsafe_allow_html=True)
+    st.markdown(f"### {get_translation('subtitle')}")
     
     # Sidebar
-    st.sidebar.title(get_translation("navigation", language))
+    st.sidebar.title(get_translation("navigation"))
     st.sidebar.markdown("---")
     
-    # Initialisation du modèle
+    # Model initialization
     if 'predictor' not in st.session_state:
         st.session_state.predictor = FPLWebPredictor()
-        with st.spinner('🔄 Chargement des données FPL...' if language == 'fr' else '🔄 Loading FPL data...'):
+        with st.spinner('🔄 Loading FPL data...'):
             if st.session_state.predictor.load_all_fpl_data():
                 st.session_state.predictor.create_features()
-                with st.spinner('🤖 Entraînement du modèle...' if language == 'fr' else '🤖 Training model...'):
+                with st.spinner('🤖 Training model...'):
                     if st.session_state.predictor.train_model():
-                        st.sidebar.success('✅ Modèle prêt!' if language == 'fr' else '✅ Model ready!')
+                        st.sidebar.success('✅ Model ready!')
                     else:
-                        st.sidebar.error('❌ Erreur entraînement' if language == 'fr' else '❌ Training error')
+                        st.sidebar.error('❌ Training error')
             else:
-                st.sidebar.error('❌ Erreur chargement données' if language == 'fr' else '❌ Data loading error')
+                st.sidebar.error('❌ Data loading error')
     
-    # Stats Globales
-    st.sidebar.markdown(f"## {get_translation('global_stats', language)}")
+    # Global Stats
+    st.sidebar.markdown(f"## {get_translation('global_stats')}")
     if st.session_state.predictor.players_df is not None:
         total_players = len(st.session_state.predictor.players_df)
         active_players = len(st.session_state.predictor.players_df[st.session_state.predictor.players_df['minutes'] > 180])
         avg_points = st.session_state.predictor.players_df['total_points'].mean()
         
-        st.sidebar.metric(get_translation('total_players', language), total_players)
-        st.sidebar.metric(get_translation('active_players', language), active_players)
-        st.sidebar.metric(get_translation('avg_points', language), f"{avg_points:.0f}")
+        st.sidebar.metric(get_translation('total_players'), total_players)
+        st.sidebar.metric(get_translation('active_players'), active_players)
+        st.sidebar.metric(get_translation('avg_points'), f"{avg_points:.0f}")
     
-    # Recherche de joueur - avec gestion de session_state
+    # NEW: FPL Team Analysis
     st.sidebar.markdown("---")
-    st.sidebar.markdown(f"## {get_translation('player_search', language)}")
+    st.sidebar.markdown(f"## {get_translation('team_analysis')}")
     
-    # Utiliser session_state pour la recherche
-    player_name = st.sidebar.text_input(
-        get_translation('player_search', language) + ":",
-        placeholder=get_translation('player_placeholder', language),
-        value=st.session_state.search_player
+    # Add team ID examples
+    st.sidebar.markdown("**Team ID Examples:**")
+    st.sidebar.markdown("- `2673856` (Popular team)")
+    st.sidebar.markdown("- `1234567` (Replace with yours)")
+    
+    team_id = st.sidebar.text_input(
+        get_translation('enter_team_id'),
+        placeholder=get_translation('team_id_placeholder'),
+        value=st.session_state.team_id
     )
     
-    # Mettre à jour session_state quand l'input change
-    if player_name != st.session_state.search_player:
-        st.session_state.search_player = player_name
+    if team_id != st.session_state.team_id:
+        st.session_state.team_id = team_id
     
-    # Filtres
-    st.sidebar.markdown(f"## {get_translation('filters', language)}")
+    analyze_team = st.sidebar.button(get_translation('analyze_team'))
     
-    # Filtre par équipe
-    team_options = [get_translation('all_teams', language)] + sorted(st.session_state.predictor.teams_df['name'].tolist())
+    # NEW: Autocomplete Search
+    create_autocomplete_search()
+    
+    # Filters
+    st.sidebar.markdown(f"## {get_translation('filters')}")
+    
+    team_options = [get_translation('all_teams')] + sorted(st.session_state.predictor.teams_df['name'].tolist())
     team_filter = st.sidebar.selectbox(
-        get_translation('filter_team', language),
+        get_translation('filter_team'),
         team_options
     )
     
-    # Filtre par position
-    position_options_fr = [get_translation('all_positions', language), "Gardien", "Défenseur", "Milieu", "Attaquant"]
-    position_options_en = [get_translation('all_positions', language), "Goalkeeper", "Defender", "Midfielder", "Forward"]
-    position_options = position_options_fr if language == 'fr' else position_options_en
+    position_options = [get_translation('all_positions'), "Goalkeeper", "Defender", "Midfielder", "Forward"]
     
     position_filter = st.sidebar.selectbox(
-        get_translation('filter_position', language),
+        get_translation('filter_position'),
         position_options
     )
     
-    # Bouton pour appliquer les filtres
-    apply_filters = st.sidebar.button(get_translation('apply_filters', language))
+    apply_filters = st.sidebar.button(get_translation('apply_filters'))
     
-    # Mode Découverte de Pépites - CORRIGÉ avec session_state
+    # Hidden Gems Discovery Mode
     st.sidebar.markdown("---")
-    if st.sidebar.button(get_translation('discover_gems', language)):
+    if st.sidebar.button(get_translation('discover_gems')):
         gems = st.session_state.predictor.get_hidden_gems()
         
-        st.markdown(f"## {get_translation('hidden_gems', language)}")
+        st.markdown(f"## {get_translation('hidden_gems')}")
         
         if len(gems) > 0:
             for _, player in gems.iterrows():
@@ -614,18 +1104,107 @@ def main():
                         ownership_display = player.get('selected_by_percent', 0)
                         if isinstance(ownership_display, str):
                             ownership_display = pd.to_numeric(ownership_display, errors='coerce')
-                        st.write(f"Forme: {player['form']:.1f} | Sélection: {ownership_display:.1f}%")
+                        st.write(f"Form: {player['form']:.1f} | Selected: {ownership_display:.1f}%")
                     with col2:
-                        if st.button("🔍 Voir", key=f"gem_{player['id']}"):
+                        if st.button("🔍 View", key=f"gem_{player['id']}"):
                             st.session_state.search_player = player['web_name']
                             st.rerun()
         else:
-            st.info("🔍 Aucune pépite trouvée" if language == 'fr' else "🔍 No hidden gems found")
+            st.info("🔍 No hidden gems found")
     
-    # Section recherche principale - utiliser session_state
+    # NEW: Team Analysis Section
+    if analyze_team and st.session_state.team_id:
+        with st.spinner('🔍 Analyzing your FPL team...'):
+            team_analysis = st.session_state.predictor.analyze_user_team(st.session_state.team_id)
+            
+            if team_analysis:
+                st.markdown(f"## {get_translation('team_analysis_title')}")
+                st.markdown(f"### 🏠 {team_analysis['team_name']}")
+                
+                # Display FPL-style lineup with pitch background - NOW CORRECTED
+                display_fpl_lineup(team_analysis)
+                
+                # Total points card
+                col_total1, col_total2, col_total3 = st.columns(3)
+                with col_total1:
+                    st.metric(get_translation('total_predicted_points'), f"{team_analysis['total_predicted_points']:.1f}")
+                with col_total2:
+                    if team_analysis['best_captain']:
+                        st.metric(get_translation('best_captain'), team_analysis['best_captain']['name'])
+                with col_total3:
+                    st.metric("👥 Player count", team_analysis['player_count'])
+                
+                # NEW: Suggested Transfers
+                st.markdown("---")
+                st.markdown(f"### {get_translation('suggested_transfers')}")
+                
+                transfer_suggestions = st.session_state.predictor.suggest_transfers(team_analysis)
+                
+                if transfer_suggestions:
+                    for i, suggestion in enumerate(transfer_suggestions):
+                        with st.container():
+                            st.markdown(f'<div class="transfer-suggestion">', unsafe_allow_html=True)
+                            col1, col2, col3, col4 = st.columns([2, 2, 1, 1])
+                            
+                            with col1:
+                                st.markdown(f"**{get_translation('transfer_out')}:**")
+                                st.write(f"❌ {suggestion['transfer_out']['name']}")
+                                st.write(f"{suggestion['transfer_out']['team']} | {suggestion['transfer_out']['position']}")
+                                st.write(f"Predicted: {suggestion['transfer_out']['predicted_points']:.1f} pts")
+                            
+                            with col2:
+                                st.markdown(f"**{get_translation('transfer_in')}:**")
+                                st.write(f"✅ {suggestion['transfer_in']['name']}")
+                                st.write(f"{suggestion['transfer_in']['team']} | {suggestion['transfer_in']['position']}")
+                                st.write(f"Predicted: {suggestion['transfer_in']['predicted_points']:.1f} pts")
+                            
+                            with col3:
+                                st.markdown(f"**{get_translation('expected_points_gain')}**")
+                                st.markdown(f'<div class="transfer-improvement">+{suggestion["transfer_in"]["improvement"]:.1f} pts</div>', unsafe_allow_html=True)
+                            
+                            with col4:
+                                st.markdown(f"**{get_translation('transfer_reason')}**")
+                                st.write(suggestion['reason'])
+                                if st.button(f"🔄 Transfer", key=f"transfer_{i}"):
+                                    st.success(f"Transfer: {suggestion['transfer_out']['name']} → {suggestion['transfer_in']['name']}")
+                            
+                            st.markdown('</div>', unsafe_allow_html=True)
+                else:
+                    st.info(get_translation('no_transfers_suggested'))
+                
+                # Team players details
+                st.markdown("---")
+                st.markdown(f"### {get_translation('team_players')}")
+                
+                for player in team_analysis['players']:
+                    with st.container():
+                        col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
+                        with col1:
+                            captain_emoji = "©️" if player['is_captain'] else "Ⓥ" if player['is_vice_captain'] else ""
+                            unavailable_emoji = " 🔴" if player['unavailable'] else ""
+                            st.write(f"**{player['name']}** {captain_emoji}{unavailable_emoji}")
+                            st.write(f"{player['position']} | {player['team']}")
+                        with col2:
+                            points_color = "🔴" if player['unavailable'] else "🟢" if player['predicted_points'] >= 6 else "🟡" if player['predicted_points'] >= 4 else "⚪"
+                            st.metric("Prediction", f"{points_color} {player['predicted_points']:.1f}")
+                        with col3:
+                            st.write(f"vs {player['opponent']}")
+                        with col4:
+                            difficulty_text = "🟢" if player['difficulty'] <= 2 else "🟡" if player['difficulty'] == 3 else "🔴"
+                            st.write(f"Difficulty: {difficulty_text}")
+                
+                # Risks (FIXED: No percentages)
+                if team_analysis['risks']:
+                    st.markdown(f"### {get_translation('team_risks')}")
+                    for risk in team_analysis['risks']:
+                        st.warning(risk)
+            else:
+                st.error(get_translation('no_team_data'))
+    
+    # Main search section - Show player prediction when a player is selected
     current_search = st.session_state.search_player
-    if current_search:
-        with st.spinner(f'{get_translation("searching", language)} {current_search}...'):
+    if current_search and current_search.strip() and not analyze_team:
+        with st.spinner(f'{get_translation("searching")} {current_search}...'):
             prediction = st.session_state.predictor.predict_player(current_search)
             
             if prediction:
@@ -634,160 +1213,170 @@ def main():
                 team_name = prediction['team_name']
                 opponent_name = prediction['opponent_name']
                 is_home = prediction['is_home']
+                unavailable = prediction.get('unavailable', False)
                 
-                # Carte du joueur
+                # Player card
                 st.markdown(f'<div class="player-card">', unsafe_allow_html=True)
                 
                 col1, col2 = st.columns([2, 1])
                 
                 with col1:
-                    st.markdown(f"### {get_translation('player_card', language)}: {player['web_name']}")
-                    st.markdown(f"**{get_translation('team', language)}:** {team_name}")
-                    st.markdown(f"**{get_translation('cost', language)}:** {player['cost']:.1f}M")
-                    st.markdown(f"**{get_translation('position', language)}:** {st.session_state.predictor.get_position_name(player['element_type'], language)}")
+                    st.markdown(f"### {get_translation('player_card')}: {player['web_name']}")
+                    st.markdown(f"**{get_translation('team')}:** {team_name}")
+                    st.markdown(f"**{get_translation('cost')}:** {player['cost']:.1f}M")
+                    st.markdown(f"**{get_translation('position')}:** {st.session_state.predictor.get_position_name(player['element_type'])}")
                 
                 with col2:
-                    if predicted_points >= 8:
+                    if unavailable:
+                        points_class = "prediction-low"
+                        emoji = "❌"
+                        points_text = "0.0 points (Unavailable)"
+                    elif predicted_points >= 8:
                         points_class = "prediction-high"
                         emoji = "🔥🔥🔥"
+                        points_text = f"{predicted_points:.1f} points"
                     elif predicted_points >= 6:
                         points_class = "prediction-medium"
                         emoji = "🔥🔥"
+                        points_text = f"{predicted_points:.1f} points"
                     elif predicted_points >= 4:
                         points_class = "prediction-medium"
                         emoji = "🔥"
+                        points_text = f"{predicted_points:.1f} points"
                     else:
                         points_class = "prediction-low"
                         emoji = "⚡"
+                        points_text = f"{predicted_points:.1f} points"
                     
-                    st.markdown(f'<div class="{points_class}">{emoji} {predicted_points:.1f} points {emoji}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="{points_class}">{emoji} {points_text} {emoji}</div>', unsafe_allow_html=True)
                 
-                # Statistiques détaillées
+                # Detailed statistics
                 st.markdown("---")
-                st.markdown(f"#### {get_translation('stats', language)}")
+                st.markdown(f"#### {get_translation('stats')}")
                 col3, col4, col5 = st.columns(3)
                 
                 with col3:
-                    st.metric(get_translation('form', language), f"{player['form']:.1f}")
-                    st.metric(get_translation('total_points', language), f"{player['total_points']}")
+                    st.metric(get_translation('form'), f"{player['form']:.1f}")
+                    st.metric(get_translation('total_points'), f"{player['total_points']}")
                 
                 with col4:
-                    st.metric(get_translation('ppg', language), f"{player['points_per_game']:.1f}")
-                    st.metric(get_translation('goals', language), f"{player['goals_scored']}")
+                    st.metric(get_translation('ppg'), f"{player['points_per_game']:.1f}")
+                    st.metric(get_translation('goals'), f"{player['goals_scored']}")
                 
                 with col5:
-                    st.metric(get_translation('assists', language), f"{player['assists']}")
-                    st.metric(get_translation('minutes', language), f"{player['minutes']}")
+                    st.metric(get_translation('assists'), f"{player['assists']}")
+                    st.metric(get_translation('minutes'), f"{player['minutes']}")
                 
-                # Contexte du match
+                # Match context
                 st.markdown("---")
-                st.markdown(f"#### {get_translation('match_context', language)}")
+                st.markdown(f"#### {get_translation('match_context')}")
                 
                 difficulty = player.get('next_opponent_difficulty', 3)
                 
-                if language == 'fr':
-                    difficulty_text = {1: "Très Facile 🟢", 2: "Facile 🟡", 3: "Moyen 🟠", 4: "Difficile 🔴", 5: "Très Difficile 🛑"}
-                    location_text = get_translation('home', language) if is_home == 1 else get_translation('away', language)
-                    vs_text = "contre"
-                else:
-                    difficulty_text = {1: "Very Easy 🟢", 2: "Easy 🟡", 3: "Medium 🟠", 4: "Difficult 🔴", 5: "Very Difficult 🛑"}
-                    location_text = get_translation('home', language) if is_home == 1 else get_translation('away', language)
-                    vs_text = "vs"
+                difficulty_text = {1: "Very Easy 🟢", 2: "Easy 🟡", 3: "Medium 🟠", 4: "Difficult 🔴", 5: "Very Difficult 🛑"}
+                location_text = get_translation('home') if is_home == 1 else get_translation('away')
+                vs_text = "vs"
                 
                 col6, col7, col8 = st.columns(3)
                 with col6:
-                    st.info(f"**{get_translation('location', language)}:** {location_text}")
+                    st.info(f"**{get_translation('location')}:** {location_text}")
                 with col7:
-                    st.info(f"**{get_translation('difficulty', language)}:** {difficulty_text.get(difficulty, 'Moyen' if language == 'fr' else 'Medium')}")
+                    st.info(f"**{get_translation('difficulty')}:** {difficulty_text.get(difficulty, 'Medium')}")
                 with col8:
-                    st.info(f"**{get_translation('opponent', language)}:** {vs_text} {opponent_name}")
+                    st.info(f"**{get_translation('opponent')}:** {vs_text} {opponent_name}")
                 
-                # ANALYSE AVANCÉE
-                st.markdown("---")
-                st.markdown(f"#### {get_translation('advanced_analysis', language)}")
+                # ADVANCED ANALYSIS
+                if not unavailable:
+                    st.markdown("---")
+                    st.markdown(f"#### {get_translation('advanced_analysis')}")
+                    
+                    col_conf1, col_conf2, col_conf3 = st.columns(3)
+                    
+                    with col_conf1:
+                        confidence_score = min(95, (player['minutes'] / 540) * 100)
+                        st.metric(get_translation('confidence'), f"{confidence_score:.0f}%")
+                        st.progress(int(confidence_score) / 100)
+                    
+                    with col_conf2:
+                        value_ratio = predicted_points / (player['cost'] + 0.1)
+                        value_stars = min(5, max(1, int(value_ratio * 3)))
+                        st.metric(get_translation('value'), "⭐" * value_stars)
+                        st.caption(f"{value_ratio:.2f} pts/M")
+                    
+                    with col_conf3:
+                        risk_level = "Low" if predicted_points >= 6 else "Medium" if predicted_points >= 4 else "High"
+                        risk_emoji = "🟢" if risk_level == "Low" else "🟡" if risk_level == "Medium" else "🔴"
+                        st.metric(get_translation('risk'), f"{risk_emoji} {risk_level}")
                 
-                col_conf1, col_conf2, col_conf3 = st.columns(3)
-                
-                with col_conf1:
-                    confidence_score = min(95, (player['minutes'] / 540) * 100)
-                    st.metric(get_translation('confidence', language), f"{confidence_score:.0f}%")
-                    st.progress(int(confidence_score) / 100)
-                
-                with col_conf2:
-                    value_ratio = predicted_points / (player['cost'] + 0.1)
-                    value_stars = min(5, max(1, int(value_ratio * 3)))
-                    st.metric(get_translation('value', language), "⭐" * value_stars)
-                    st.caption(f"{value_ratio:.2f} pts/M")
-                
-                with col_conf3:
-                    risk_level = "Faible" if predicted_points >= 6 else "Moyen" if predicted_points >= 4 else "Élevé"
-                    risk_en = "Low" if predicted_points >= 6 else "Medium" if predicted_points >= 4 else "High"
-                    risk_emoji = "🟢" if risk_level == "Faible" else "🟡" if risk_level == "Moyen" else "🔴"
-                    st.metric(get_translation('risk', language), f"{risk_emoji} {risk_level if language == 'fr' else risk_en}")
-                
-                # ALERTES ET RECOMMANDATIONS
+                # ALERTS AND RECOMMENDATIONS
                 alerts = []
                 
-                if 'chance_of_playing_next_round' in player and player['chance_of_playing_next_round'] < 75:
-                    alerts.append("⚠️ Risque de blessure" if language == 'fr' else "⚠️ Injury risk")
-                
-                if player['yellow_cards'] >= 4:
-                    alerts.append("🟡 Suspendu au prochain carton" if language == 'fr' else "🟡 Suspension risk")
+                if unavailable:
+                    alerts.append("❌ Player unavailable (injured/suspended)")
+                else:
+                    if 'chance_of_playing_next_round' in player and player['chance_of_playing_next_round'] is not None and player['chance_of_playing_next_round'] < 75:
+                        alerts.append("⚠️ Injury risk")
+                    
+                    if player.get('yellow_cards', 0) >= 4:
+                        alerts.append("🟡 Suspension risk")
                 
                 if alerts:
                     st.warning(" | ".join(alerts))
                 
-                # RECOMMANDATION PERSONNALISÉE
-                if predicted_points >= 8:
-                    recommendation = "💡 **Excellent choix capitaine!**" if language == 'fr' else "💡 **Great captain choice!**"
+                # PERSONALIZED RECOMMENDATION
+                if unavailable:
+                    recommendation = "💡 **Player unavailable - consider transferring out**"
+                    st.error(recommendation)
+                elif predicted_points >= 8:
+                    recommendation = "💡 **Great captain choice!**"
                     st.success(recommendation)
                 elif predicted_points >= 6:
-                    recommendation = "💡 **Solide pour ton équipe**" if language == 'fr' else "💡 **Solid starter**"
+                    recommendation = "💡 **Solid starter**"
                     st.info(recommendation)
                 elif predicted_points >= 4:
-                    recommendation = "💡 **Choix décent**" if language == 'fr' else "💡 **Decent choice**"
+                    recommendation = "💡 **Decent choice**"
                     st.info(recommendation)
                 else:
-                    recommendation = "💡 **Envisage d'autres options**" if language == 'fr' else "💡 **Consider alternatives**"
+                    recommendation = "💡 **Consider alternatives**"
                     st.warning(recommendation)
                 
                 st.markdown('</div>', unsafe_allow_html=True)
             else:
-                st.error(get_translation('player_not_found', language))
+                st.error(get_translation('player_not_found'))
     
-    # Section joueurs filtrés
+    # Filtered players section
     st.sidebar.markdown("---")
-    if apply_filters or st.sidebar.button(get_translation('view_filtered', language)):
-        st.markdown(f"## {get_translation('filtered_players', language)}")
+    if apply_filters and not analyze_team:
+        st.markdown(f"## {get_translation('filtered_players')}")
         
         filtered_players = st.session_state.predictor.get_filtered_players(team_filter, position_filter)
         
         if len(filtered_players) == 0:
-            st.warning(get_translation('no_players', language))
+            st.warning(get_translation('no_players'))
         else:
-            st.success(get_translation('players_found', language).format(len(filtered_players)))
+            st.success(get_translation('players_found').format(len(filtered_players)))
             
             display_data = []
             for _, player in filtered_players.head(20).iterrows():
                 display_data.append({
-                    'Joueur' if language == 'fr' else 'Player': player['web_name'],
-                    'Équipe' if language == 'fr' else 'Team': st.session_state.predictor.get_team_name(player['team']),
-                    'Position' if language == 'fr' else 'Position': st.session_state.predictor.get_position_name(player['element_type'], language),
-                    'Forme' if language == 'fr' else 'Form': f"{player['form']:.1f}",
+                    'Player': player['web_name'],
+                    'Team': st.session_state.predictor.get_team_name(player['team']),
+                    'Position': st.session_state.predictor.get_position_name(player['element_type']),
+                    'Form': f"{player['form']:.1f}",
                     'PPG': f"{player['points_per_game']:.1f}",
-                    'Pts Totaux' if language == 'fr' else 'Total Points': player['total_points']
+                    'Total Points': player['total_points']
                 })
             
             display_df = pd.DataFrame(display_data)
             st.dataframe(display_df, use_container_width=True)
     
-    # Top 10 prédictions
+    # Top 10 predictions
     st.sidebar.markdown("---")
-    if st.sidebar.button(get_translation('view_top10', language)):
-        st.markdown(f"## {get_translation('top_predictions', language)}")
+    if st.sidebar.button(get_translation('view_top10')) and not analyze_team:
+        st.markdown(f"## {get_translation('top_predictions')}")
         
         if st.session_state.predictor.model is None:
-            st.error("❌ Modèle non disponible" if language == 'fr' else "❌ Model not available")
+            st.error("❌ Model not available")
             return
         
         all_predictions = []
@@ -798,45 +1387,42 @@ def main():
                 player_mask = st.session_state.predictor.players_df['id'] == player['id']
                 if player_mask.any() and len(X[player_mask]) > 0:
                     try:
-                        # Utiliser la même logique de prédiction que predict_player
+                        # Use same prediction logic as predict_player
                         prediction = st.session_state.predictor.predict_player(player['web_name'])
-                        if prediction:
+                        if prediction and prediction['predicted_points'] > 0:  # Only include available players
                             all_predictions.append({
-                                'Player' if language == 'en' else 'Joueur': player['web_name'],
-                                'Team' if language == 'en' else 'Équipe': st.session_state.predictor.get_team_name(player['team']),
-                                'Position': st.session_state.predictor.get_position_name(player['element_type'], language),
-                                'Predicted Points' if language == 'en' else 'Points Prédits': prediction['predicted_points'],
-                                'Form' if language == 'en' else 'Forme': player['form'],
-                                'Cost' if language == 'en' else 'Coût': player['cost']
+                                'Player': player['web_name'],
+                                'Team': st.session_state.predictor.get_team_name(player['team']),
+                                'Position': st.session_state.predictor.get_position_name(player['element_type']),
+                                'Predicted Points': prediction['predicted_points'],
+                                'Form': player['form'],
+                                'Cost': player['cost']
                             })
                     except:
                         continue
         
         if all_predictions:
             top_df = pd.DataFrame(all_predictions)
-            points_column = 'Predicted Points' if language == 'en' else 'Points Prédits'
+            points_column = 'Predicted Points'
             top_df = top_df.nlargest(10, points_column)
             
             try:
                 styled_df = top_df.style.format({
                     'Predicted Points': '{:.1f}',
-                    'Points Prédits': '{:.1f}',
                     'Form': '{:.1f}',
-                    'Forme': '{:.1f}',
-                    'Cost': '{:.1f}',
-                    'Coût': '{:.1f}'
+                    'Cost': '{:.1f}'
                 }).background_gradient(subset=[points_column], cmap='YlOrRd')
                 st.dataframe(styled_df, use_container_width=True)
             except:
                 st.dataframe(top_df, use_container_width=True)
         else:
-            st.warning("❌ Aucune prédiction disponible" if language == 'fr' else "❌ No predictions available")
+            st.warning("❌ No predictions available")
     
     # Footer
     st.markdown("---")
-    st.markdown(f"### {get_translation('how_to_use', language)}")
+    st.markdown(f"### {get_translation('how_to_use')}")
     
-    for step in get_translation('usage_steps', language):
+    for step in get_translation('usage_steps'):
         st.markdown(f"- {step}")
 
 if __name__ == "__main__":
